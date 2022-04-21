@@ -53,8 +53,6 @@ public class JPS_Search_Mgr
                 }
             }
         }
-        //return _pathList;
-        //return realPathList;
         return null;
     }
 
@@ -111,52 +109,6 @@ public class JPS_Search_Mgr
 
         return node;
     }
-
-    #region
-    /// <summary>
-    /// 获取周围四方向寻路代价最近的点
-    /// </summary>
-    //private JPS_Node GetClosetNode (JPS_Node start, JPS_Node node ,JPS_Node target)
-    //{
-    //    var ins = JPS_Entrance.I;
-    //    JPS_Node result = null;
-    //    JPS_Node temp = null;
-    //    (int x, int y) tempWay;
-    //    for (var i = 0; i < _defaultWays.Length; i++)
-    //    {
-    //        tempWay = (node.X + _defaultWays[i].Item1, node.Y + _defaultWays[i].Item2);
-
-    //        temp = ins.Get( tempWay.x, tempWay.y );
-    //        if (temp is null)
-    //        {
-    //            //Debug.Log( $"<color=yellow>tempWay:{tempWay},defaultWay:{_defaultWays[i]}</color>" );
-    //            continue;
-    //        }
-
-    //        //closeSet中的不管
-    //        if (ContainsInCloseDic( temp ))
-    //            continue;
-
-    //        if (result is null)
-    //            result = temp;
-
-    //        if (result != null)
-    //        {
-    //            var dis1 = EuclideanDistance( start, temp )   + EuclideanDistance( temp, target );
-    //            var dis2 = EuclideanDistance( start, result ) + EuclideanDistance( result, target );
-    //            if (dis1 < dis2)
-    //            {
-    //                //寻路代价更高的点也不需要再次检查
-    //                AddToCloseDic( result );
-    //                result = temp;
-    //            }
-    //        }
-
-    //    }//end for
-
-    //    return result;
-    //}
-    #endregion
 
     /// <summary>
     /// 添加到关闭列表
