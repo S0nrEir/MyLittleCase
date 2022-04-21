@@ -68,9 +68,10 @@ namespace JPS
             if (_start is null || _target is null)
                 return;
 
-            //Debug.Log( $"OnStartFindInput--->{_start.X},{_start.Y}" );
-            //Debug.Log( $"OnStartFindInput--->{_target.X},{_target.Y}" );
-            var pathList = JPS_Search_Mgr.I.AStar( _start, _target );
+            foreach (var p in NodesArr)
+                p.Reset();
+
+            var pathList = _pathFindingType == PathFindingTypeEnum.AStar ? JPS_Search_Mgr.I.AStar( _start, _target ) : JPS_Search_Mgr.I.JPS(_start,_target);
             DrawPath( pathList );
         }
 
@@ -168,6 +169,7 @@ namespace JPS
         [SerializeField] private Tile _obsTile = null;
         [SerializeField] private Tile _inputTile = null;
         [SerializeField] [Range( 0, 1f )] private float _obsPercent = .2f;
+        [SerializeField] private PathFindingTypeEnum _pathFindingType = PathFindingTypeEnum.AStar;
         private HashSet<JPS_Node> _drawedPathSet = null;
         //[SerializeField] private Vector2 _inputWay;
 
@@ -183,6 +185,13 @@ namespace JPS
             get => _i;
         }
 
+
+    }
+
+    internal enum PathFindingTypeEnum
+    {
+        AStar,
+        JPS
     }
 
 }

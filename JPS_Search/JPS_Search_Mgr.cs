@@ -11,13 +11,71 @@ namespace JPS
     public class JPS_Search_Mgr
     {
         /// <summary>
-        /// JPS跳点搜索，返回一条从start到target的路径
+        /// JPS跳点搜索，返回一条从start到target的路径，八方向
         /// </summary>
-        public List<JPS_Node> JPS ( JPS_Node star, JPS_Node target )
+        public List<JPS_Node> JPS ( JPS_Node start, JPS_Node target )
         {
+            //对于四方向，只进行直线遍历
+            //八方向增加四条斜线
+            Reset();
+            JPS_Node curr;
+            AddToOpen( start );
+            //保存拿到的跳点集合
+            List<JPS_Node> temp_jp_list = new List<JPS_Node>();
+
+            while (_openSet.Count != 0)
+            {
+                curr = GetClosetInOpen( start, target );
+                if (curr.ID == target.ID)
+                {
+                    return Gen( curr );
+                }
+                else
+                {
+                    RemoveFromOpen( curr );
+                    AddToCloseDic( curr );
+                }
+
+                for (var i = 0; i < _biasWays.Length; i++)
+                {
+                    //当前跳点为起点的 所有新跳点的集合
+                    temp_jp_list = JPS_Tools.GetBiasStraightLineJPs
+                        ( 
+                            curr, 
+                            new Vector2Int( _biasWays[i].x, _biasWays[i].y ), 
+                            null 
+                        );
+
+                    foreach (var jp in temp_jp_list)
+                    {
+                        jp.SetJumpPoint( true );
+                        if (!ContainsInOpenDic( jp ))
+                            AddToOpen( jp );
+
+                        jp.Parent = curr;
+                    }
+
+                    //直线方向跳跃检查然后每次斜向单步检查，所有的斜向检查完毕后检查下一个openList中的跳点
+                    //for (var j = 0; j < _defaultWays.Length; j++)
+                    //{
+                    //    //当前节点周围四方向，斜向检查的开启条件是直线四方向搜索没有任何结果
+                    //    temp_jp_arr = JPS_Tools.GetStraightLineJPs( curr, _defaultWays[j], out hasJP );
+
+                    //}
+
+                    //斜向下一步
+                    //biasNode = ins.Get( curr.X + _biasWays[i].x, curr.Y + _biasWays[i].y );
+                    //if (biasNode is null || biasNode.IsObs)
+                    //    continue;
+                }//end bias for
+
+
+
+            }
 
             return null;
         }
+
 
         /// <summary>
         /// AStar
@@ -25,9 +83,8 @@ namespace JPS
         public List<JPS_Node> AStar ( JPS_Node start, JPS_Node target )
         {
             Reset();
-            List<JPS_Node> realPathList = new List<JPS_Node>();
             JPS_Node curr = start;
-            JPS_Node[] neibs = null;
+            JPS_Node[] neibs;
             AddToOpen( curr );
             while (_openSet.Count != 0)
             {
@@ -95,6 +152,7 @@ namespace JPS
 
         private JPS_Node GetClosetInOpen ( JPS_Node start, JPS_Node target )
         {
+            //#todo优化 复杂地形跳点也很多，遍历取出寻路代价最低的跳点效率太慢了
             double dis1, dis2;
             JPS_Node node = null;
             foreach (var p in _openSet)
@@ -107,9 +165,10 @@ namespace JPS
 
                 dis1 = JPS_Tools.EuclideanDistance( start, p ) + JPS_Tools.EuclideanDistance( p, target );
                 dis2 = JPS_Tools.EuclideanDistance( start, node ) + JPS_Tools.EuclideanDistance( node, target );
+                node = dis1 < dis2 ? p : node;
 
-                if (dis1 < dis2)
-                    node = p;
+                //if (dis1 < dis2)
+                //    node = p;
             }
 
             return node;
@@ -143,6 +202,9 @@ namespace JPS
 
             if (_openSet is null)
                 _openSet = new HashSet<JPS_Node>();
+
+            if (_jpsList is null)
+                _jpsList = new List<JPS_Node>();
         }
 
         private void Reset ()
@@ -151,12 +213,14 @@ namespace JPS
             _openList.Clear();
             _pathList.Clear();
             _openSet.Clear();
+            _jpsList.Clear();
         }
 
         private Dictionary<int, JPS_Node> _closeDic = null;
         private List<JPS_Node> _openList = null;//no use
         private HashSet<JPS_Node> _openSet = null;
         private List<JPS_Node> _pathList = null;
+        private List<JPS_Node> _jpsList = null;//跳点列表
 
         private static JPS_Search_Mgr _i = null;
 
@@ -178,10 +242,30 @@ namespace JPS
 
         private static (int, int)[] _defaultWays = new (int, int)[]
             {
-            (0,1),//👆
-            (0,-1),//👇
-            (-1,0),//👈
-            (1,0),//👉
+                (0,1),//👆
+                (0,-1),//👇
+                (-1,0),//👈
+                (1,0),//👉
+            };
+
+        private static (int, int)[] _default_8_Ways = new (int, int)[]
+            {
+                (0,1),//👆
+                (0,-1),//👇
+                (-1,0),//👈
+                (1,0),//👉
+                (-1,1),//↖
+                (-1,-1),//↙
+                (1,-1),//↘
+                (1,1),//↗
+            };
+
+        private static (int x, int y)[] _biasWays = new (int, int)[]
+            {
+                (-1,1),//↖
+                (-1,-1),//↙
+                (1,-1),//↘
+                (1,1),//↗
             };
 
         /// <summary>

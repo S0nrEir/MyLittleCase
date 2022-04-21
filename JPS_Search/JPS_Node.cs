@@ -20,6 +20,12 @@ namespace JPS
             SetJumpPoint( false );
         }
 
+        public void Reset ()
+        {
+            SetForceNeib( false );
+            SetJumpPoint( false );
+        }
+
         public int ID = -1;
 
         public JPS_Node Parent = null;
