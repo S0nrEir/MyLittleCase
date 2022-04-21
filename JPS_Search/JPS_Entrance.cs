@@ -133,19 +133,6 @@ public class JPS_Entrance : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 从nodesArr获取一个jpsNode，拿不到返回空
-    /// </summary>
-    private JPS_Node GetNodes ()
-    {
-        Vector3 worldPos = Camera.main.ScreenToWorldPoint( Input.mousePosition );
-        var x = (int)worldPos.x;
-        var y = (int)worldPos.y;
-        if (x >= 0 && x < MAX_ROW && y >= 0 && y < MAX_COL)
-            return NodesArr[x, y];
-        else
-            return null;
-    }
 
     /// <summary>
     /// 创建地图
