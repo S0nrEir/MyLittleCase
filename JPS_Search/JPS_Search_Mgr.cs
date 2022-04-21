@@ -44,13 +44,13 @@ public class JPS_Search_Mgr
 
                 if (!ContainsInOpenDic( p ))
                 {
-                    p.Parent = curr;
                     AddToOpen( p );
                 }
-                else
-                {
-                    p.Parent = curr;
-                }
+                //else
+                //{
+                //    p.Parent = curr;
+                //}
+                p.Parent = curr;
             }
         }
         return null;
