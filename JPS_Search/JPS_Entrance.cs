@@ -28,15 +28,6 @@ public class JPS_Entrance : MonoBehaviour
         //OnDrawInputWay();
     }
 
-    private void OnDrawInputWay ()
-    {
-        var node = Get( (int)_inputWay.x, (int)_inputWay.y );
-        if (node == null)
-            return;
-
-        _tileMap.SetTile( new Vector3Int( node.X, node.Y, 0 ), _inputTile );
-    }
-
     /// <summary>
     /// 从arr中获取一个点，拿不到返回null
     /// </summary>
@@ -142,19 +133,6 @@ public class JPS_Entrance : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 从nodesArr获取一个jpsNode，拿不到返回空
-    /// </summary>
-    private JPS_Node GetNodes ()
-    {
-        Vector3 worldPos = Camera.main.ScreenToWorldPoint( Input.mousePosition );
-        var x = (int)worldPos.x;
-        var y = (int)worldPos.y;
-        if (x >= 0 && x < MAX_ROW && y >= 0 && y < MAX_COL)
-            return NodesArr[x, y];
-        else
-            return null;
-    }
 
     /// <summary>
     /// 创建地图
@@ -189,7 +167,7 @@ public class JPS_Entrance : MonoBehaviour
     [SerializeField] private Tile _inputTile = null;
     [SerializeField] [Range(0,1f)] private float _obsPercent = .2f;
     private HashSet<JPS_Node> _drawedPathSet = null;
-    [SerializeField] private Vector2 _inputWay;
+    //[SerializeField] private Vector2 _inputWay;
 
     //最大行列0~99
     private const int MAX_ROW = 100;
