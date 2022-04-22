@@ -45,6 +45,11 @@ namespace JPS
 
             public static int Gen () => id--;
         }
+
+        public override string ToString ()
+        {
+            return $"{X},{Y}";
+        }
     }
 
 }

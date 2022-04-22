@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 
 namespace JPS
 {
@@ -38,7 +39,7 @@ namespace JPS
         /// <summary>
         /// 从arr中获取一个点，拿不到返回null
         /// </summary>
-        public JPS_Node Get ( int x, int y )
+        public JPS_Node Get ( int x, int y ,bool includeObs = false)
         {
             if (x < 0 || y < 0)
             {
@@ -55,7 +56,9 @@ namespace JPS
             var node = NodesArr[x, y];
             if (node.IsObs)
             {
-                //Debug.Log( $"<color=green>obs--->{(x, y)}</color>" );
+                if (includeObs)
+                    return node;
+
                 return null;
             }
 
@@ -75,6 +78,9 @@ namespace JPS
 
             foreach (var p in NodesArr)
                 p.Reset();
+
+            Debug.Log($"<color=green>start:{_start}</color>");
+            Debug.Log( $"<color=green>target:{_target}</color>" );
 
             var pathList = _pathFindingType == PathFindingTypeEnum.AStar ? JPS_Search_Mgr.I.AStar( _start, _target ) : JPS_Search_Mgr.I.JPS(_start,_target);
             DrawPath( pathList );
@@ -165,6 +171,7 @@ namespace JPS
             NodesArr = new JPS_Node[MAX_ROW, MAX_COL];
             JPS_Node node = null;
             var isObs = false;
+            Vector3Int pos = Vector3Int.zero;
             for (int i = 0; i < MAX_ROW; i++)
             {
                 for (int j = 0; j < MAX_COL; j++)
@@ -172,10 +179,27 @@ namespace JPS
                     node = new JPS_Node( i, j );
                     isObs = Random.value <= _obsPercent;
                     node.SetObs( isObs );
-                    _tileMap.SetTile( new Vector3Int( i, j, 0 ), isObs ? _obsTile : _roadTile );
+                    pos.x = i;
+                    pos.y = j;
+                    _tileMap.SetTile( pos, isObs ? _obsTile : _roadTile );
+                    //CreateTextAtXY( pos );
                     NodesArr[i, j] = node;
                 }
             }//end for
+        }
+
+        private void CreateTextAtXY (Vector3Int worldPos)
+        {
+            if (_canvas == null)
+                return;
+
+            var obj = new GameObject();
+            obj.transform.SetParent( _canvas );
+
+            obj.name = $"{worldPos.x},{worldPos.y}";
+            var txt = obj.AddComponent<Text>();
+            txt.text = $"{worldPos.x},{worldPos.y}";
+            obj.transform.position = new Vector3(worldPos.x,worldPos.y,0);
         }
 
         private JPS_Node _start = null;
@@ -189,8 +213,9 @@ namespace JPS
         [SerializeField] private Tile _roadTile = null;
         [SerializeField] private Tile _obsTile = null;
         [SerializeField] private Tile _inputTile = null;
-        [SerializeField] [Range( 0, 1f )] private float _obsPercent = .2f;
+        [SerializeField] [Range( 0, 1f )] private float _obsPercent = .1f;
         [SerializeField] private PathFindingTypeEnum _pathFindingType = PathFindingTypeEnum.JPS;
+        [SerializeField] private Transform _canvas = null;
         private HashSet<JPS_Node> _drawedPathSet = null;
         //[SerializeField] private Vector2 _inputWay;
 

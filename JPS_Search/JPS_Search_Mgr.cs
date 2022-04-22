@@ -10,6 +10,86 @@ namespace JPS
     /// </summary>
     public class JPS_Search_Mgr
     {
+        //dir为基础的jps寻路算法
+        public List<JPS_Node> JPS_New ( JPS_Node start, JPS_Node target )
+        {
+            //对于四方向，只进行直线遍历
+            //八方向增加四条斜线
+            Reset();
+            JPS_Node curr;
+            AddToOpen( start );
+            //保存拿到的跳点集合
+            List<JPS_Node> temp_jp_list = new List<JPS_Node>();
+            List<(int x, int y)> dirList = new List<(int, int)>();
+            JPS_Node offsetNode = null;
+            while (_openSet.Count != 0)
+            {
+                curr = GetClosetInOpen( start, target );
+                if (dirList.Count == 0)//起点
+                {
+                    dirList.Add( TILE_DIRECTION.DIRECTION_UP );
+                    dirList.Add( TILE_DIRECTION.DIRECTION_DOWN );
+                    dirList.Add( TILE_DIRECTION.DIRECTION_LEFT );
+                    dirList.Add( TILE_DIRECTION.DIRECTION_RIGHT );
+                    dirList.Add( TILE_DIRECTION.DIRECTION_RIGHT_UP );
+                    dirList.Add( TILE_DIRECTION.DIRECTION_RIGHT_Down );
+                    dirList.Add( TILE_DIRECTION.DIRECTION_LEFT_UP );
+                    dirList.Add( TILE_DIRECTION.DIRECTION_LEFT_DOWN );
+                }
+                else//寻找父方向
+                {
+                    
+                }
+
+                foreach (var dir in dirList)
+                {
+                    offsetNode = curr;
+                    while (offsetNode != null && !offsetNode.IsObs)
+                    {
+                        offsetNode = JPS_Entrance.I.Get( offsetNode.X + dir.x, offsetNode.Y + dir.y );
+                        if (offsetNode is null || offsetNode.IsObs)
+                            break;
+
+                        //直线
+                        if (dir.x == 0 || dir.y == 0)
+                            JPS_Tools.GetStraightLineJPs( offsetNode, dir, temp_jp_list, target );
+                        else
+                            JPS_Tools.GetBiasStraightLineJPs( offsetNode, new Vector2Int(dir.x,dir.y), target, temp_jp_list );
+
+                        if (temp_jp_list.Count != 0)
+                        {
+                            foreach (var jp in _jpsList)
+                            {
+                                if (jp is null || ContainsInCloseDic( jp ))
+                                    continue;
+
+                                AddToOpen( jp );
+                            }
+                        }
+
+                        temp_jp_list.Clear();
+                    }
+
+                }
+
+                if (curr.ID != start.ID && curr.ID != target.ID)
+                    JPS_Entrance.I.SetJPTile_Test( curr );
+
+                if (curr.ID == target.ID)
+                {
+                    return JPS_Gen( curr );
+                }
+                else
+                {
+                    RemoveFromOpen( curr );
+                    AddToCloseDic( curr );
+                }
+
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// JPS跳点搜索，返回一条从start到target的路径，八方向
         /// </summary>
@@ -26,7 +106,10 @@ namespace JPS
             while (_openSet.Count != 0)
             {
                 curr = GetClosetInOpen( start, target );
-                JPS_Entrance.I.SetJPTile_Test( curr );
+
+                if(curr.ID != start.ID && curr.ID != target.ID)
+                    JPS_Entrance.I.SetJPTile_Test( curr );
+
                 if (curr.ID == target.ID)
                 {
                     return JPS_Gen( curr );
@@ -37,41 +120,51 @@ namespace JPS
                     AddToCloseDic( curr );
                 }
 
-                //当前点四方向的跳跃搜索
-                temp_jp_list.AddRange( JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_UP ) );
-                temp_jp_list.AddRange( JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_Down ) );
-                temp_jp_list.AddRange( JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_Right ) );
-                temp_jp_list.AddRange( JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_Left ) );
+                //当前点水平四方向的跳点探索
+                JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_UP,    temp_jp_list,target );
+                JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_DOWN,  temp_jp_list,target );
+                JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_LEFT,  temp_jp_list,target );
+                JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_RIGHT, temp_jp_list,target );
 
-                for (var i = 0; i < _biasWays.Length; i++)
+                //尝试优化一下，如果这次遍历直线方向找到了跳点，那就不进行斜向探测
+                if (temp_jp_list.Count == 0)
                 {
-                    //当前跳点为起点的 所有新跳点的集合
-                    temp_jp_list.AddRange
-                        ( 
-                            JPS_Tools.GetBiasStraightLineJPs
-                            (
-                                //curr, 
-                                JPS_Entrance.I.Get( curr.X + _biasWays[i].x, curr.Y + _biasWays[i].y ),
-                                new Vector2Int( _biasWays[i].x, _biasWays[i].y ),
-                                null
-                            ) 
-                        );
-
-                    foreach (var jp in temp_jp_list)
+                    for (var i = 0; i < _biasWays.Length; i++)
                     {
-                        if (ContainsInCloseDic( jp ))
-                            continue;
+                        //当前跳点为起点的 所有新跳点的集合
+                        temp_jp_list.AddRange
+                            (
+                                JPS_Tools.GetBiasStraightLineJPs
+                                (
+                                    //curr, 
+                                    JPS_Entrance.I.Get( curr.X + _biasWays[i].x, curr.Y + _biasWays[i].y ),
+                                    new Vector2Int( _biasWays[i].x, _biasWays[i].y ),
+                                    target,
+                                    temp_jp_list
+                                )
+                            );
+                        //如果找到任何一个，直接跳出
+                        if (temp_jp_list.Count != 0)
+                            i = _biasWays.Length - 1;
 
-                        jp.SetJumpPoint( true );
-                        if (!ContainsInOpenDic( jp ))
-                            AddToOpen( jp );
+                    }//end bias for   
+                }
 
-                        jp.Parent = curr;
-                        if (jp.ID == target.ID)
-                            return JPS_Gen( jp );
-                    }
-                    temp_jp_list.Clear();
-                }//end bias for
+                foreach (var jp in temp_jp_list)
+                {
+                    if (jp is null || ContainsInCloseDic( jp ))
+                        continue;
+                    
+                    jp.SetJumpPoint( true );
+                    if (!ContainsInOpenDic( jp ))
+                        AddToOpen( jp );
+
+                    jp.Parent = curr;
+                    if (jp.ID == target.ID)
+                        return JPS_Gen( jp );
+                }
+                temp_jp_list.Clear();
+
             }
             
             return null;
@@ -197,7 +290,7 @@ namespace JPS
             _closeDic.Add( node.ID, node );
         }
 
-        private bool ContainsInCloseDic ( JPS_Node node ) => _closeDic.ContainsKey( node.ID );
+        public bool ContainsInCloseDic ( JPS_Node node ) => _closeDic.ContainsKey( node.ID );
         private bool ContainsInOpenDic ( JPS_Node node ) => _openSet.Contains( node );
 
 
@@ -255,17 +348,17 @@ namespace JPS
         private static (int, int)[] _defaultWays = new (int, int)[]
             {
                 TILE_DIRECTION.DIRECTION_UP,//👆
-                TILE_DIRECTION.DIRECTION_Down,//👇
-                TILE_DIRECTION.DIRECTION_Left,//👈
-                TILE_DIRECTION.DIRECTION_Right,//👉
+                TILE_DIRECTION.DIRECTION_DOWN,//👇
+                TILE_DIRECTION.DIRECTION_LEFT,//👈
+                TILE_DIRECTION.DIRECTION_RIGHT,//👉
             };
 
         private static (int, int)[] _default_8_Ways = new (int, int)[]
             {
                 TILE_DIRECTION.DIRECTION_UP,//👆
-                TILE_DIRECTION.DIRECTION_Down,//👇
-                TILE_DIRECTION.DIRECTION_Left,//👈
-                TILE_DIRECTION.DIRECTION_Right,//👉
+                TILE_DIRECTION.DIRECTION_DOWN,//👇
+                TILE_DIRECTION.DIRECTION_LEFT,//👈
+                TILE_DIRECTION.DIRECTION_RIGHT,//👉
                 TILE_DIRECTION.DIRECTION_LEFT_UP,//↖
                 TILE_DIRECTION.DIRECTION_LEFT_DOWN,//↙
                 TILE_DIRECTION.DIRECTION_RIGHT_Down,//↘
@@ -293,9 +386,9 @@ namespace JPS
     {
         //水平四方向
         public static readonly (int x, int y) DIRECTION_UP = (0, 1);
-        public static readonly (int x, int y) DIRECTION_Down = (0, -1);
-        public static readonly (int x, int y) DIRECTION_Left = (-1, 0);
-        public static readonly (int x, int y) DIRECTION_Right = (1, 0);
+        public static readonly (int x, int y) DIRECTION_DOWN = (0, -1);
+        public static readonly (int x, int y) DIRECTION_LEFT = (-1, 0);
+        public static readonly (int x, int y) DIRECTION_RIGHT = (1, 0);
         //斜向四方向
         public static readonly (int x, int y) DIRECTION_RIGHT_UP = (1, 1);
         public static readonly (int x, int y) DIRECTION_RIGHT_Down = (1, -1);
