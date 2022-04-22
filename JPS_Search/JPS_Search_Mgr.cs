@@ -26,7 +26,7 @@ namespace JPS
             while (_openSet.Count != 0)
             {
                 curr = GetClosetInOpen( start, target );
-                JPS_Entrance.I.SetJPTile( curr );
+                JPS_Entrance.I.SetJPTile_Test( curr );
                 if (curr.ID == target.ID)
                 {
                     return Gen( curr );

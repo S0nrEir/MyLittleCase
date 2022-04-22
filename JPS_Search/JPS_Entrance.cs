@@ -30,7 +30,7 @@ namespace JPS
             //OnDrawInputWay();
         }
 
-        public void SetJPTile (JPS_Node node)
+        public void SetJPTile_Test (JPS_Node node)
         {
             _tileMap.SetTile( new Vector3Int( node.X, node.Y ,0), _jpTile );
         }
