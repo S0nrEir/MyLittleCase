@@ -30,6 +30,11 @@ namespace JPS
             //OnDrawInputWay();
         }
 
+        public void SetJPTile (JPS_Node node)
+        {
+            _tileMap.SetTile( new Vector3Int( node.X, node.Y ,0), _jpTile );
+        }
+
         /// <summary>
         /// 从arr中获取一个点，拿不到返回null
         /// </summary>

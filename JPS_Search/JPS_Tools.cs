@@ -23,13 +23,13 @@ namespace JPS
             if(temp_jp_list is null)
                 temp_jp_list = new List<JPS_Node>();
 
-            if (node != null || !node.IsObs)
+            if (node is null || node.IsObs)
                 return temp_jp_list;
 
-            temp_jp_list.AddRange( GetStraightLineJPs( node, (0,1) ) );
-            temp_jp_list.AddRange( GetStraightLineJPs( node, (0,-1)) );
-            temp_jp_list.AddRange( GetStraightLineJPs( node, (1,0) ) );
-            temp_jp_list.AddRange( GetStraightLineJPs( node, (-1,0)) );
+            temp_jp_list.AddRange( GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_UP ) );
+            temp_jp_list.AddRange( GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_Down )  );
+            temp_jp_list.AddRange( GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_Right ) );
+            temp_jp_list.AddRange( GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_Left )  );
 
             if (temp_jp_list.Count != 0)
                 return temp_jp_list;

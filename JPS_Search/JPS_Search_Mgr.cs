@@ -26,6 +26,7 @@ namespace JPS
             while (_openSet.Count != 0)
             {
                 curr = GetClosetInOpen( start, target );
+                JPS_Entrance.I.SetJPTile( curr );
                 if (curr.ID == target.ID)
                 {
                     return Gen( curr );
@@ -36,14 +37,24 @@ namespace JPS
                     AddToCloseDic( curr );
                 }
 
+                //当前点四方向
+                temp_jp_list.AddRange( JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_UP ) );
+                temp_jp_list.AddRange( JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_Down ) );
+                temp_jp_list.AddRange( JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_Right ) );
+                temp_jp_list.AddRange( JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_Left ) );
+
                 for (var i = 0; i < _biasWays.Length; i++)
                 {
                     //当前跳点为起点的 所有新跳点的集合
-                    temp_jp_list = JPS_Tools.GetBiasStraightLineJPs
+                    temp_jp_list.AddRange
                         ( 
-                            curr, 
-                            new Vector2Int( _biasWays[i].x, _biasWays[i].y ), 
-                            null 
+                            JPS_Tools.GetBiasStraightLineJPs
+                            (
+                                //curr, 
+                                JPS_Entrance.I.Get( curr.X + _biasWays[i].x, curr.Y + _biasWays[i].y ),
+                                new Vector2Int( _biasWays[i].x, _biasWays[i].y ),
+                                null
+                            ) 
                         );
 
                     foreach (var jp in temp_jp_list)
@@ -230,31 +241,33 @@ namespace JPS
 
         private static (int, int)[] _defaultWays = new (int, int)[]
             {
-                (0,1),//👆
-                (0,-1),//👇
-                (-1,0),//👈
-                (1,0),//👉
+                TILE_DIRECTION.DIRECTION_UP,//👆
+                TILE_DIRECTION.DIRECTION_Down,//👇
+                TILE_DIRECTION.DIRECTION_Left,//👈
+                TILE_DIRECTION.DIRECTION_Right,//👉
             };
 
         private static (int, int)[] _default_8_Ways = new (int, int)[]
             {
-                (0,1),//👆
-                (0,-1),//👇
-                (-1,0),//👈
-                (1,0),//👉
-                (-1,1),//↖
-                (-1,-1),//↙
-                (1,-1),//↘
-                (1,1),//↗
+                TILE_DIRECTION.DIRECTION_UP,//👆
+                TILE_DIRECTION.DIRECTION_Down,//👇
+                TILE_DIRECTION.DIRECTION_Left,//👈
+                TILE_DIRECTION.DIRECTION_Right,//👉
+                TILE_DIRECTION.DIRECTION_LEFT_UP,//↖
+                TILE_DIRECTION.DIRECTION_LEFT_DOWN,//↙
+                TILE_DIRECTION.DIRECTION_RIGHT_Down,//↘
+                TILE_DIRECTION.DIRECTION_RIGHT_UP,//↗
             };
 
         private static (int x, int y)[] _biasWays = new (int, int)[]
             {
-                (-1,1),//↖
-                (-1,-1),//↙
-                (1,-1),//↘
-                (1,1),//↗
+                TILE_DIRECTION.DIRECTION_LEFT_UP,//↖
+                TILE_DIRECTION.DIRECTION_LEFT_DOWN,//↙
+                TILE_DIRECTION.DIRECTION_RIGHT_Down,//↘
+                TILE_DIRECTION.DIRECTION_RIGHT_UP,//↗
             };
+
+
 
         /// <summary>
         /// 默认四向通行
@@ -263,4 +276,17 @@ namespace JPS
 
     }
 
+    public class TILE_DIRECTION
+    {
+        //水平四方向
+        public static readonly (int x, int y) DIRECTION_UP = (0, 1);
+        public static readonly (int x, int y) DIRECTION_Down = (0, -1);
+        public static readonly (int x, int y) DIRECTION_Left = (-1, 0);
+        public static readonly (int x, int y) DIRECTION_Right = (1, 0);
+        //斜向四方向
+        public static readonly (int x, int y) DIRECTION_RIGHT_UP = (1, 1);
+        public static readonly (int x, int y) DIRECTION_RIGHT_Down = (1, -1);
+        public static readonly (int x, int y) DIRECTION_LEFT_UP = (-1, 1);
+        public static readonly (int x, int y) DIRECTION_LEFT_DOWN = (-1, -1);
+    }
 }
