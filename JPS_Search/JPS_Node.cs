@@ -16,13 +16,11 @@ namespace JPS
             GridPosition = new Vector2( X, Y );
             ID = Node_ID_Pool.Gen();
             SetObs( false );
-            SetForceNeib( false );
             SetJumpPoint( false );
         }
 
         public void Reset ()
         {
-            SetForceNeib( false );
             SetJumpPoint( false );
         }
 
@@ -32,8 +30,6 @@ namespace JPS
         //障碍物
         public void SetObs ( bool isObs ) => IsObs = isObs;
         public bool IsObs { get; private set; } = false;
-        public void SetForceNeib ( bool isForceNeib ) => IsForceNeib = isForceNeib;
-        public bool IsForceNeib { get; private set; } = false;
         public void SetJumpPoint ( bool isJumpPoint ) => IsJumpPoint = isJumpPoint;
         public bool IsJumpPoint { get; private set; } = false;
 

@@ -101,7 +101,7 @@ namespace JPS
         private void OnStartInput ()
         {
             //左键确定起点
-            if (Input.GetMouseButton( 0 ))
+            if (Input.GetMouseButtonUp( 0 ))
             {
                 var worldPos = Camera.main.ScreenToWorldPoint( Input.mousePosition );
                 var x = (int)worldPos.x;
@@ -111,7 +111,10 @@ namespace JPS
                     _start = Get( x, y );
 
                     if (_start != null)
+                    {
                         _tileMap.SetTile( new Vector3Int( _start.X, _start.Y, 0 ), _startTile );
+                        return;
+                    }
                 }
                 else if (_target == null)
                 {
@@ -136,6 +139,18 @@ namespace JPS
             }
         }
 
+        private void DrawJPSPath (IList<JPS_Node> pathList )
+        {
+            if (pathList is null || pathList.Count == 0)
+                return;
+
+            Debug.Log( $"<color=green>pathList count : {pathList.Count}</color>" );
+            for (var i = 1; i < pathList.Count - 1; i++)
+            {
+                _tileMap.SetTile( new Vector3Int( pathList[i].X, pathList[i].Y, 0 ), _jpTile );
+                _drawedPathSet.Add( pathList[i] );
+            }
+        }
 
         /// <summary>
         /// 创建地图
@@ -161,6 +176,7 @@ namespace JPS
         private JPS_Node _start = null;
         private JPS_Node _target = null;
 
+        [SerializeField] private Tile _jpTile = null;
         [SerializeField] private Tile _pathTile = null;
         [SerializeField] private Tilemap _tileMap = null;
         [SerializeField] private Tile _targetTile = null;
@@ -169,7 +185,7 @@ namespace JPS
         [SerializeField] private Tile _obsTile = null;
         [SerializeField] private Tile _inputTile = null;
         [SerializeField] [Range( 0, 1f )] private float _obsPercent = .2f;
-        [SerializeField] private PathFindingTypeEnum _pathFindingType = PathFindingTypeEnum.AStar;
+        [SerializeField] private PathFindingTypeEnum _pathFindingType = PathFindingTypeEnum.JPS;
         private HashSet<JPS_Node> _drawedPathSet = null;
         //[SerializeField] private Vector2 _inputWay;
 
@@ -191,7 +207,8 @@ namespace JPS
     internal enum PathFindingTypeEnum
     {
         AStar,
-        JPS
+        JPS,
+        JPS_Optimize
     }
 
 }

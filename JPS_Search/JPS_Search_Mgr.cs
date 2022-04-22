@@ -48,31 +48,19 @@ namespace JPS
 
                     foreach (var jp in temp_jp_list)
                     {
+                        if (ContainsInCloseDic( jp ))
+                            continue;
+
                         jp.SetJumpPoint( true );
                         if (!ContainsInOpenDic( jp ))
                             AddToOpen( jp );
 
                         jp.Parent = curr;
                     }
-
-                    //直线方向跳跃检查然后每次斜向单步检查，所有的斜向检查完毕后检查下一个openList中的跳点
-                    //for (var j = 0; j < _defaultWays.Length; j++)
-                    //{
-                    //    //当前节点周围四方向，斜向检查的开启条件是直线四方向搜索没有任何结果
-                    //    temp_jp_arr = JPS_Tools.GetStraightLineJPs( curr, _defaultWays[j], out hasJP );
-
-                    //}
-
-                    //斜向下一步
-                    //biasNode = ins.Get( curr.X + _biasWays[i].x, curr.Y + _biasWays[i].y );
-                    //if (biasNode is null || biasNode.IsObs)
-                    //    continue;
+                    temp_jp_list.Clear();
                 }//end bias for
-
-
-
             }
-
+            
             return null;
         }
 

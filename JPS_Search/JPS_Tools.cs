@@ -96,37 +96,144 @@ namespace JPS
             return arr;
         }
 
-        /// <summary>
         /// 检查一个node是否为跳点，是返回true
-        /// </summary
         private static bool IsJumpPoint ( JPS_Node node, Vector2Int direction )
         {
             if (direction == Vector2Int.zero)
                 return false;
 
             //临近节点坐标偏移
-            Vector2Int neibOffset;
-            //强迫节点坐标偏移
-            Vector2Int foreceOffset;
+            Vector2Int neibOffset_1 = new Vector2Int(0,0);
+            Vector2Int neibOffset_2 = new Vector2Int( 0, 0 );
+            //后方检测点,对于斜向检测两个偏移不一致，所以要两个，从neib点做偏移而不是next
+            Vector2Int backOffset_1 = new Vector2Int( 0, 0 );
+            Vector2Int backOffset_2 = new Vector2Int( 0, 0 );
+
+            //前方
+            var nextNode = JPS_Entrance.I.Get( node.X + direction.x, node.Y + direction.y );
+            if (nextNode is null || nextNode.IsObs)
+                return false;
+
+            //#TODO优化 用角度判断方向
             //水平方向上下左右
             if (direction.x == 0 || direction.y == 0)
             {
-                //竖直方向
+                //竖向偏移在两边
                 if (direction.x == 0)
                 {
-                    neibOffset = new Vector2Int( 0, direction.y > 0 ? 1 : -1 );
+                    neibOffset_1.x = 1;
+                    neibOffset_1.y = 0;
+                    neibOffset_2.x = -1;
+                    neibOffset_2.y = 0;
 
+                    //竖向偏移在neib的下边
+                    //朝上
+                    if (direction.y > 0)
+                    {
+                        backOffset_1.y = -1;
+                        backOffset_2.y = -1;
+                    }
+                    //朝下
+                    else
+                    {
+                        backOffset_1.y = 1;
+                        backOffset_2.y = 1;
+                    }
                 }
-                //水平方向
+                //水平偏移在上下
                 else
                 {
-                    neibOffset = new Vector2Int( direction.x > 0 ? 1 : -1, 0 );
+                    neibOffset_1.x = 0;
+                    neibOffset_1.y = 1;
+                    neibOffset_2.x = 0;
+                    neibOffset_2.y = -1;
+
+                    //朝右,障碍检测向左（后）
+                    if (direction.x > 0)
+                    {
+                        backOffset_1.x = -1;
+                        backOffset_2.x = -1;
+                    }
+                    //朝左
+                    else
+                    {
+                        backOffset_2.x = 1;
+                        backOffset_1.x = 1;
+                    }
                 }
             }
+            //斜向x和y皆不等于0
+            //右上(1,1) 左上(-1,1)
+            //右下(1,-1) 左下(-1-1)
+            else
+            {
+                //右朝向
+                if (direction.x > 0)
+                {
+                    //右上还是右下
+                    if (direction.y > 0)
+                    {
+                        neibOffset_1.x = -1;
+                        neibOffset_1.y =  1;
+                        neibOffset_2.x = 1;
+                        neibOffset_2.y = -1;
 
-            //斜向左上左下右上右下
+                        backOffset_1.y = -1;
+                        backOffset_2.x = -1;
+                    }
+                    else
+                    {
+                        neibOffset_1.x = 1;
+                        neibOffset_1.y = 1;
+                        neibOffset_2.x = -1;
+                        neibOffset_2.y = -1;
+
+                        backOffset_1.x = -1;
+                        backOffset_2.y = 1;
+                    }
+                }
+                //左朝向
+                else
+                {
+                    //左上还是左下
+                    if (direction.y > 0)
+                    {
+                        neibOffset_1.x = -1;
+                        neibOffset_1.y = -1;
+                        neibOffset_2.x = 1;
+                        neibOffset_2.y = 1;
+
+                        backOffset_1.x = 1;
+                        backOffset_2.y = -1;
+                    } 
+                    else
+                    {
+                        neibOffset_1.x = -1;
+                        neibOffset_1.y = 1;
+                        neibOffset_2.x = 1;
+                        neibOffset_2.y = -1;
+
+                        backOffset_1.x = 1;
+                        backOffset_2.y = 1;
+                    }
+                }
+            }
+            //检查两方向任意点是否为强迫邻居和跳点
+            var neibNode = JPS_Entrance.I.Get( nextNode.X + neibOffset_1.x, nextNode.Y + neibOffset_1.y );
+            JPS_Node isObjsNode = null;
+            if (neibNode != null && !neibNode.IsObs)
+            {
+                isObjsNode = JPS_Entrance.I.Get( neibNode.X + backOffset_1.x, neibNode.Y + backOffset_1.y );
+                //JP检查
+                if (isObjsNode != null && isObjsNode.IsObs)
+                    return true;
+
+                isObjsNode = JPS_Entrance.I.Get( neibNode.X + backOffset_2.x, neibNode.Y + backOffset_2.y );
+                if (isObjsNode != null && isObjsNode.IsObs)
+                    return true;
+            }
+            return false;
         }
-
 
         //返回某一直线方向上的跳点集合
         public static List<JPS_Node> StraightLineScan ( JPS_Node node, (int x, int y) way)
