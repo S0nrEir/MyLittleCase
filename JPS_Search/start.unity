@@ -438,7 +438,7 @@ MonoBehaviour:
   _obsTile: {fileID: 11400000, guid: cb3b84e1a9e993944bbf4bff7ee16718, type: 2}
   _inputTile: {fileID: 11400000, guid: 21c94af9af6795a48a2a4e61e2b9bb1c, type: 2}
   _obsPercent: 0.2
-  _pathFindingType: 0
+  _pathFindingType: 1
 --- !u!4 &1063008148
 Transform:
   m_ObjectHideFlags: 0

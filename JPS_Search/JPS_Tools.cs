@@ -17,12 +17,12 @@ namespace JPS
             return Mathf.Sqrt( dx * dx + dy * dy );
         }
 
+        /// <summary>
         /// 获取某一斜向的遍历直线跳点集合
+        /// </summary>
         public static List<JPS_Node> GetBiasStraightLineJPs (JPS_Node node,Vector2Int biasDirection, List<JPS_Node> temp_jp_list = null)
         {
-            if(temp_jp_list is null)
-                temp_jp_list = new List<JPS_Node>();
-
+            temp_jp_list = temp_jp_list is null ? new List<JPS_Node>() : temp_jp_list;
             if (node is null || node.IsObs)
                 return temp_jp_list;
 
@@ -31,41 +31,42 @@ namespace JPS
             temp_jp_list.AddRange( GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_Right ) );
             temp_jp_list.AddRange( GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_Left )  );
 
-            if (temp_jp_list.Count != 0)
-                return temp_jp_list;
+            return temp_jp_list;
 
-            return GetBiasStraightLineJPs( JPS_Entrance.I.Get(node.X + biasDirection.x,node.Y + biasDirection.y) ,biasDirection , temp_jp_list);
+            //if (temp_jp_list.Count != 0)
+            //    return temp_jp_list;
+
+            //return GetBiasStraightLineJPs( JPS_Entrance.I.Get(node.X + biasDirection.x,node.Y + biasDirection.y) ,biasDirection , temp_jp_list);
         }
 
-        public static List<JPS_Node> JumpPoint (JPS_Node node,(int,int)[] ways)
-        {
-            var list = new List<JPS_Node>();
-            var tempList = new List<JPS_Node>();
-            JPS_Node temp = null;
-            //周围方向找跳点并且返回
-            for (var i = 0; i < ways.Length; i++)
-            {
-                //temp = JPS_Entrance.I.Get( node.X + ways[i].Item1, node.Y + ways[i].Item2 );
-                ////边界或障碍物
-                //if (temp is null || temp.IsObs)
-                //    continue;
+        //public static List<JPS_Node> JumpPoint (JPS_Node node,(int,int)[] ways)
+        //{
+        //    var list = new List<JPS_Node>();
+        //    var tempList = new List<JPS_Node>();
+        //    //周围方向找跳点并且返回
+        //    for (var i = 0; i < ways.Length; i++)
+        //    {
+        //        //temp = JPS_Entrance.I.Get( node.X + ways[i].Item1, node.Y + ways[i].Item2 );
+        //        ////边界或障碍物
+        //        //if (temp is null || temp.IsObs)
+        //        //    continue;
 
-                tempList = StraightLineScan( node, ways[i] );
-                list.AddRange( tempList );
-            }
-            return list;
-        }
+        //        tempList = StraightLineScan( node, ways[i] );
+        //        list.AddRange( tempList );
+        //    }
+        //    return list;
+        //}
 
         /// <summary>
         /// GetStraightLineJPs的list返回形式
         /// </summary>
         /// <returns></returns>
-        public static List<JPS_Node> GetStraightLineList ( JPS_Node node, (int x, int y) direction )
-        {
-            var list = new List<JPS_Node>();
-            list.AddRange( GetStraightLineJPs( node, direction) );
-            return list;
-        }
+        //public static List<JPS_Node> GetStraightLineList ( JPS_Node node, (int x, int y) direction )
+        //{
+        //    var list = new List<JPS_Node>();
+        //    list.AddRange( GetStraightLineJPs( node, direction) );
+        //    return list;
+        //}
 
         /// <summary>
         /// 获取某一直线方向上的跳点集合
@@ -83,7 +84,7 @@ namespace JPS
             //直线跳跃搜索的终止条件是直到遇到跳点或边界为止
             //斜向只检查一次就可以了
             JPS_Node temp = ins.Get( node.X + direction.x, node.Y + direction.y );
-            while (temp != null || !temp.IsObs)
+            while (temp != null && !temp.IsObs)
             {
                 if (IsJumpPoint( temp, directionVec ))
                 {
@@ -91,7 +92,7 @@ namespace JPS
                     arr[1] = temp;
                     break;
                 }
-                temp = ins.Get( node.X + direction.x, node.Y + direction.y );
+                temp = ins.Get( temp.X + direction.x, temp.Y + direction.y );
             }
             return arr;
         }

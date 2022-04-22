@@ -29,7 +29,7 @@ namespace JPS
                 JPS_Entrance.I.SetJPTile_Test( curr );
                 if (curr.ID == target.ID)
                 {
-                    return Gen( curr );
+                    return JPS_Gen( curr );
                 }
                 else
                 {
@@ -37,7 +37,7 @@ namespace JPS
                     AddToCloseDic( curr );
                 }
 
-                //当前点四方向
+                //当前点四方向的跳跃搜索
                 temp_jp_list.AddRange( JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_UP ) );
                 temp_jp_list.AddRange( JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_Down ) );
                 temp_jp_list.AddRange( JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_Right ) );
@@ -67,6 +67,8 @@ namespace JPS
                             AddToOpen( jp );
 
                         jp.Parent = curr;
+                        if (jp.ID == target.ID)
+                            return JPS_Gen( jp );
                     }
                     temp_jp_list.Clear();
                 }//end bias for
@@ -117,6 +119,20 @@ namespace JPS
             return null;
         }
 
+        private List<JPS_Node> JPS_Gen ( JPS_Node node )
+        {
+            return new List<JPS_Node>(0);
+
+            var list = new List<JPS_Node>();
+            while (node != null)
+            {
+                list.Add( node );
+                node = node.Parent;
+            }
+            return list;
+        }
+
+
         private List<JPS_Node> Gen ( JPS_Node node )
         {
             var list = new List<JPS_Node>();
@@ -165,9 +181,6 @@ namespace JPS
                 dis1 = JPS_Tools.EuclideanDistance( start, p ) + JPS_Tools.EuclideanDistance( p, target );
                 dis2 = JPS_Tools.EuclideanDistance( start, node ) + JPS_Tools.EuclideanDistance( node, target );
                 node = dis1 < dis2 ? p : node;
-
-                //if (dis1 < dis2)
-                //    node = p;
             }
 
             return node;
