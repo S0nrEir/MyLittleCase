@@ -29,7 +29,6 @@ namespace JPS
             if (biasDirection.x == 0 && biasDirection.y == 0)
                 return temp_jp_list;
 
-            //优化：根据biasDirection的方向，来决定哪些直线方向需要遍历，而不是每次都是走四遍
             if (biasDirection.x > 0 )
             {
                 GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_RIGHT, temp_jp_list, target );
@@ -252,6 +251,25 @@ namespace JPS
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 获取探测方向
+        /// </summary>
+        public static TileScanDirection GetTileScaneDir ( (int x, int y) dir)
+        {
+            if (dir.x == 0 && dir.y == 0)
+                return TileScanDirection.None;
+
+            return dir.x != 0 && dir.y != 0 ? TileScanDirection.Bias : TileScanDirection.Straight;
+        }
+
+        public static TileScanDirection GetTileScaneDir ( Vector2Int dir )
+        {
+            if (dir == Vector2Int.zero)
+                return TileScanDirection.None;
+
+            return dir.x != 0 && dir.y != 0 ? TileScanDirection.Bias : TileScanDirection.Straight;
         }
 
         ////返回某一直线方向上的跳点集合
