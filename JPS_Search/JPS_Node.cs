@@ -42,6 +42,19 @@ namespace JPS
 
         public List<(int x, int y)> _dirList { get; private set; } = null;
 
+        public void AddDir ( Vector2Int dirToAdd )
+        {
+            if (_dirList is null)
+                _dirList = new List<(int x, int y)>();
+
+            var dir = (dirToAdd.x, dirToAdd.y);
+            //#todo优化为位运算
+            if (_dirList.Contains( dir ))
+                return;
+
+            _dirList.Add( dir );
+        }
+
         public void AddDir ( (int x, int y) dirToAdd )
         {
             if(_dirList is null)

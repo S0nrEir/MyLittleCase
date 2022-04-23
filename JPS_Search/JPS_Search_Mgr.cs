@@ -10,6 +10,50 @@ namespace JPS
     /// </summary>
     public class JPS_Search_Mgr
     {
+        public List<JPS_Node> JPS_New_New ( JPS_Node start, JPS_Node target )
+        {
+            Reset();
+            JPS_Node currJP = start;
+            currJP.SetJumpPoint( true );
+            AddToOpen( currJP );
+            List<(int x, int y)> dirList = null;
+            var jpsTempList = new List<JPS_Node>();
+            while (_openSet.Count != 0)
+            {
+                currJP = GetClosetInOpen( start, target );
+                //for test
+                if (currJP.ID != start.ID && currJP.ID != target.ID)
+                    JPS_Entrance.I.SetJPTile_Test( currJP );
+
+                if (currJP.ID == target.ID)
+                    return JPS_Gen( currJP );
+                else
+                {
+                    RemoveFromOpen( currJP );
+                    AddToCloseDic( currJP );
+
+                    dirList = DirList( currJP );
+                    foreach (var dir in dirList)
+                    {
+                        //直线
+                        if (JPS_Tools.GetTileScaneDir( dir ) == TileScanDirection.Straight)
+                        {
+                        }
+                        //斜向
+                        else
+                        {
+                        }
+                    }
+                    AddToOpen( jpsTempList );
+                    jpsTempList.Clear();
+                }
+            }
+            return null;
+        }
+
+
+
+
         public List<JPS_Node> JPS_New ( JPS_Node start, JPS_Node target )
         {
             Reset();
@@ -24,14 +68,10 @@ namespace JPS
             JPS_Node parent = null;
             //直线探测的坐标点
             JPS_Node current = null;
-
             while (_openSet.Count != 0)
             {
                 currJP = GetClosetInOpen( start, target );
-                
-                RemoveFromOpen( currJP );
-                AddToCloseDic( currJP );
-
+                Debug.Log( $"<color=purple>currJP:{currJP}</color>" );
                 //for test
                 if (currJP.ID != start.ID && currJP.ID != target.ID)
                     JPS_Entrance.I.SetJPTile_Test( currJP );
@@ -40,38 +80,99 @@ namespace JPS
                     return JPS_Gen( currJP );
                 else
                 {
+                    RemoveFromOpen( currJP );
+                    AddToCloseDic( currJP );
+
                     dirList = DirList( currJP );
-                    parent = currJP;
                     foreach (var dir in dirList)
                     {
                         //直线
                         if (JPS_Tools.GetTileScaneDir( dir ) == TileScanDirection.Straight)
                         {
-                            current = currJP;
-                            JPS_Tools.GetStraightLineJPs( current, dir, jpsTempList, target );
+                            JPS_Tools.GetStraightLineJps_New( currJP, target, new Vector2Int(dir.x,dir.y), jpsTempList );
                         }
                         //斜向
                         else
                         {
-                            parent = JPS_Entrance.I.Get( currJP.X + dir.x, currJP.Y + dir.y ,true);
+                            parent = JPS_Entrance.I.Get( currJP.X, currJP.Y, true );
                             //斜向探测，遇到边界或障碍物终止
                             while (parent != null && !parent.IsObs)
                             {
-                                //parent.AddDir( dir );
+                                if (parent.ID == target.ID)
+                                    return Gen( parent );
+
                                 var tempDir = new Vector2Int( dir.x, dir.y );
-                                //斜向节点检查自身是否为jp
-                                //不需要
-                                Debug.Log( $"<color=red>parent={parent}</color>" );
                                 JPS_Tools.GetBiasStraightLineJPs( parent, tempDir, target, jpsTempList );
                                 parent = JPS_Entrance.I.Get( parent.X + dir.x, parent.Y + dir.y );
                             }
                         }
                     }
                     AddToOpen( jpsTempList );
+                    //foreach (var jp in jpsTempList)
+                    //{
+                    //    if (jp is null || jp.IsObs || ContainsInCloseDic( jp ))
+                    //        continue;
+
+                    //    jp.Parent = currJP;
+                    //}
+
                     jpsTempList.Clear();
                 }
-            }
 
+                #region nouse
+                //currJP = GetClosetInOpen( start, target );
+                //Debug.Log( $"<color=purple>currJP:{currJP}</color>" );
+                ////for test
+                //if (currJP.ID != start.ID && currJP.ID != target.ID)
+                //    JPS_Entrance.I.SetJPTile_Test( currJP );
+
+                //if (currJP.ID == target.ID)
+                //    return Gen( currJP );
+                //else
+                //{
+                //    RemoveFromOpen( currJP );
+                //    AddToCloseDic( currJP );
+
+                //    dirList = DirList( currJP );
+                //    //parent = currJP;
+                //    foreach (var dir in dirList)
+                //    {
+                //        //直线
+                //        if (JPS_Tools.GetTileScaneDir( dir ) == TileScanDirection.Straight)
+                //        {
+                //            current = currJP;
+                //            JPS_Tools.GetStraightLineJPs( current, dir, jpsTempList, target );
+                //        }
+                //        //斜向
+                //        else
+                //        {
+                //            parent = JPS_Entrance.I.Get( currJP.X, currJP.Y, true );
+                //            //斜向探测，遇到边界或障碍物终止
+                //            while (parent != null && !parent.IsObs)
+                //            {
+                //                if (parent.ID == target.ID)
+                //                    return Gen( parent );
+
+                //                var tempDir = new Vector2Int( dir.x, dir.y );
+                //                Debug.Log( $"<color=red>parent={parent}</color>" );
+                //                JPS_Tools.GetBiasStraightLineJPs( parent, tempDir, target, jpsTempList );
+                //                parent = JPS_Entrance.I.Get( parent.X + dir.x, parent.Y + dir.y );
+                //            }
+                //        }
+                //    }
+                //    AddToOpen( jpsTempList );
+                //    foreach (var jp in jpsTempList)
+                //    {
+                //        if (jp is null || jp.IsObs || ContainsInCloseDic( jp ))
+                //            continue;
+
+                //        jp.Parent = currJP;
+                //    }
+
+                //    jpsTempList.Clear();
+                //}
+                #endregion
+            }
             return null;
         }
 
@@ -94,90 +195,15 @@ namespace JPS
                     TILE_DIRECTION.DIRECTION_LEFT_DOWN,
                 };
 
+            var s = $"<color=blUe>node__{node},dir:";
+            foreach (var dir in node._dirList)
+            {
+                s += $"{dir.x},{dir.y} ; ";
+            }
+            s += "</color>";
+            Debug.Log( s );
             return node._dirList;
         }
-
-        #region old_jps
-        /// <summary>
-        /// JPS跳点搜索，返回一条从start到target的路径，八方向
-        /// </summary>
-        public List<JPS_Node> JPS ( JPS_Node start, JPS_Node target )
-        {
-            //对于四方向，只进行直线遍历
-            //八方向增加四条斜线
-            Reset();
-            JPS_Node curr;
-            AddToOpen( start );
-            //保存拿到的跳点集合
-            List<JPS_Node> temp_jp_list = new List<JPS_Node>();
-
-            while (_openSet.Count != 0)
-            {
-                curr = GetClosetInOpen( start, target );
-
-                if(curr.ID != start.ID && curr.ID != target.ID)
-                    JPS_Entrance.I.SetJPTile_Test( curr );
-
-                if (curr.ID == target.ID)
-                {
-                    return JPS_Gen( curr );
-                }
-                else
-                {
-                    RemoveFromOpen( curr );
-                    AddToCloseDic( curr );
-                }
-
-                //当前点水平四方向的跳点探索
-                JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_UP,    temp_jp_list,target );
-                JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_DOWN,  temp_jp_list,target );
-                JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_LEFT,  temp_jp_list,target );
-                JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_RIGHT, temp_jp_list,target );
-
-                //尝试优化一下，如果这次遍历直线方向找到了跳点，那就不进行斜向探测
-                if (temp_jp_list.Count == 0)
-                {
-                    for (var i = 0; i < _biasWays.Length; i++)
-                    {
-                        //当前跳点为起点的 所有新跳点的集合
-                        temp_jp_list.AddRange
-                            (
-                                JPS_Tools.GetBiasStraightLineJPs
-                                (
-                                    //curr, 
-                                    JPS_Entrance.I.Get( curr.X + _biasWays[i].x, curr.Y + _biasWays[i].y ),
-                                    new Vector2Int( _biasWays[i].x, _biasWays[i].y ),
-                                    target,
-                                    temp_jp_list
-                                )
-                            );
-                        //如果找到任何一个，直接跳出
-                        if (temp_jp_list.Count != 0)
-                            i = _biasWays.Length - 1;
-
-                    }//end bias for   
-                }
-
-                foreach (var jp in temp_jp_list)
-                {
-                    if (jp is null || ContainsInCloseDic( jp ))
-                        continue;
-                    
-                    jp.SetJumpPoint( true );
-                    if (!ContainsInOpenDic( jp ))
-                        AddToOpen( jp );
-
-                    jp.Parent = curr;
-                    if (jp.ID == target.ID)
-                        return JPS_Gen( jp );
-                }
-                temp_jp_list.Clear();
-
-            }
-            
-            return null;
-        }
-        #endregion
 
         /// <summary>
         /// AStar
@@ -277,7 +303,7 @@ namespace JPS
 
             foreach (var node in nodeList)
             {
-                if (ContainsInCloseDic( node ))
+                if (ContainsInCloseDic( node ) || ContainsInOpenDic(node))
                     continue;
 
                 AddToOpen( node );
@@ -317,7 +343,7 @@ namespace JPS
         }
 
         public bool ContainsInCloseDic ( JPS_Node node ) => _closeDic.ContainsKey( node.ID );
-        private bool ContainsInOpenDic ( JPS_Node node ) => _openSet.Contains( node );
+        public bool ContainsInOpenDic ( JPS_Node node ) => _openSet.Contains( node );
 
 
         private void EnsureInit ()
