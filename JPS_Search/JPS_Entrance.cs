@@ -55,12 +55,7 @@ namespace JPS
 
             var node = NodesArr[x, y];
             if (node.IsObs)
-            {
-                if (includeObs)
-                    return node;
-
-                return null;
-            }
+                return includeObs ? node : null;
 
             return node;
         }
@@ -79,10 +74,16 @@ namespace JPS
             foreach (var p in NodesArr)
                 p.Reset();
 
+            var itor = _drawedPathSet.GetEnumerator();
+            while (itor.MoveNext())
+                _tileMap.SetTile( new Vector3Int( itor.Current.X, itor.Current.Y, 0 ), _roadTile );
+
+            _drawedPathSet.Clear();
             Debug.Log($"<color=green>start:{_start}</color>");
             Debug.Log( $"<color=green>target:{_target}</color>" );
 
-            var pathList = _pathFindingType == PathFindingTypeEnum.AStar ? JPS_Search_Mgr.I.AStar( _start, _target ) : JPS_Search_Mgr.I.JPS(_start,_target);
+            //var pathList = _pathFindingType == PathFindingTypeEnum.AStar ? JPS_Search_Mgr.I.AStar( _start, _target ) : JPS_Search_Mgr.I.JPS( _start, _target );
+            var pathList = _pathFindingType == PathFindingTypeEnum.AStar ? JPS_Search_Mgr.I.AStar( _start, _target ) : JPS_Search_Mgr.I.JPS_New(_start,_target);
             DrawPath( pathList );
         }
 

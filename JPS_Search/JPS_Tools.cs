@@ -29,22 +29,48 @@ namespace JPS
             if (biasDirection.x == 0 && biasDirection.y == 0)
                 return temp_jp_list;
 
-            //对于parent自身，先检查周围直线方向
-            if ( node._dirList != null && node._dirList.Count != 0)
+            if (node.ID == target.ID)
             {
-                foreach (var dir in node._dirList)
-                {
-                    if (GetTileScaneDir( dir ) != TileScanDirection.Straight)
-                        continue;
-
-                    GetStraightLineJPs( node, dir, temp_jp_list, target );
-                }//end for
+                temp_jp_list.Add( node );
+                return temp_jp_list;
             }
 
-            //if (biasDirection.x > 0 )
+            if (biasDirection.x > 0)
+            {
+                //#TODO测试log
+                Debug.Log( $"<color=puple>decomp direction:{TILE_DIRECTION.DIRECTION_RIGHT}</color>" );
+                GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_RIGHT, temp_jp_list, target );
+                //GetStraightLineJPs( node, biasDirection.y > 0 ? TILE_DIRECTION.DIRECTION_UP : TILE_DIRECTION.DIRECTION_DOWN, temp_jp_list, target );
+            }
+            else
+            {
+                //#TODO测试log
+                Debug.Log( $"<color=puple>decomp direction:{TILE_DIRECTION.DIRECTION_RIGHT}</color>" );
+                GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_LEFT, temp_jp_list, target );
+            }
+
+            var log = biasDirection.y > 0 ? TILE_DIRECTION.DIRECTION_UP : TILE_DIRECTION.DIRECTION_DOWN;
+            Debug.Log( $"<color=puple>decomp direction:{log}</color>" );
+            GetStraightLineJPs( node, biasDirection.y > 0 ? TILE_DIRECTION.DIRECTION_UP : TILE_DIRECTION.DIRECTION_DOWN, temp_jp_list, target );
+
+            //对于parent自身，先检查周围直线方向
+            //if ( node._dirList != null && node._dirList.Count != 0)
+            //{
+            //    var scanType = TileScanDirection.None;
+            //    foreach (var dir in node._dirList)
+            //    {
+            //        scanType = GetTileScaneDir( dir );
+            //        if (scanType != TileScanDirection.Straight && scanType != TileScanDirection.None)
+            //            continue;
+
+            //        GetStraightLineJPs( node, dir, temp_jp_list, target );
+            //    }//end for
+            //}
+
+            //if (biasDirection.x > 0)
             //{
             //    GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_RIGHT, temp_jp_list, target );
-            //    GetStraightLineJPs( node, biasDirection.y > 0 ?  TILE_DIRECTION.DIRECTION_UP : TILE_DIRECTION.DIRECTION_DOWN, temp_jp_list, target );
+            //    GetStraightLineJPs( node, biasDirection.y > 0 ? TILE_DIRECTION.DIRECTION_UP : TILE_DIRECTION.DIRECTION_DOWN, temp_jp_list, target );
             //}
             //else
             //{
@@ -96,8 +122,8 @@ namespace JPS
                         temp_jp_list.Add( temp );
                         //node.AddDir( direction );
                         //temp_jp_list.Add( node );
+                        break;
                     }
-                    break;
                 }
                 temp = ins.Get( temp.X + direction.x, temp.Y + direction.y );
             }
@@ -229,10 +255,8 @@ namespace JPS
                     }
                 }
             }
-            
-            Debug.Log( $"<color=orange>node:{node}</color>" );
-            Debug.Log( $"<color=orange>:direction:{direction}</color>" );
-            Debug.Log( $"<color=orange>nextNode:{nextNode}</color>" );
+
+            Debug.Log( $"<color=orange>node:{node}___direction:{direction}___nextNode:{nextNode}</color>" );
 
             //检查两方向任意点是否为强迫邻居和跳点
             var neibNode = JPS_Entrance.I.Get( nextNode.X + neibOffset_1.x, nextNode.Y + neibOffset_1.y ,true);
@@ -243,9 +267,7 @@ namespace JPS
             {
                 isObjsNode = JPS_Entrance.I.Get( neibNode.X + backOffset_1.x, neibNode.Y + backOffset_1.y, true );
 
-                Debug.Log( $"<color=white>isObsNode:{isObjsNode}</color>" );
-                Debug.Log( $"<color=white>neibOffset_1:{neibOffset_1}</color>" );
-                Debug.Log( $"<color=white>backOffset_1:{backOffset_1}</color>" );
+                Debug.Log( string.Format( "<color=while>isObsNode:{0}___is obs:{1}___neibOffset_1:{2}___,backOffset_1:{3}</color>", isObjsNode, isObjsNode.IsObs, neibOffset_1, backOffset_1 ) );
 
                 hasNeib |= isObjsNode != null && isObjsNode.IsObs;
                 //#for test
@@ -262,11 +284,7 @@ namespace JPS
             if (neibNode != null && !neibNode.IsObs)
             {
                 isObjsNode = JPS_Entrance.I.Get( neibNode.X + backOffset_2.x, neibNode.Y + backOffset_2.y ,true );
-
-                Debug.Log( $"<color=white>isObsNode:{isObjsNode}</color>" );
-                Debug.Log( $"<color=white>neibOffset_2:{neibOffset_2}</color>" );
-                Debug.Log( $"<color=white>backOffset_2:{backOffset_2}</color>" );
-
+                Debug.Log( string.Format( "<color=while>isObsNode:{0}___is obs:{1}___neibOffset_2:{2}___,backOffset_2:{3}</color>", isObjsNode, isObjsNode.IsObs, neibOffset_2, backOffset_2 ) );
                 //JP检查
                 //if (isObjsNode != null && isObjsNode.IsObs)
                 //    return true;

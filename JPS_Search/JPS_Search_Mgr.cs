@@ -32,36 +32,38 @@ namespace JPS
                 RemoveFromOpen( currJP );
                 AddToCloseDic( currJP );
 
+                //for test
+                if (currJP.ID != start.ID && currJP.ID != target.ID)
+                    JPS_Entrance.I.SetJPTile_Test( currJP );
+
                 if (currJP.ID == target.ID)
                     return JPS_Gen( currJP );
                 else
                 {
                     dirList = DirList( currJP );
-                    parent = currJP; ;
-                    //初始点直线探测然后斜向探测到地图边界或遇到障碍
+                    parent = currJP;
                     foreach (var dir in dirList)
                     {
+                        //直线
                         if (JPS_Tools.GetTileScaneDir( dir ) == TileScanDirection.Straight)
                         {
                             current = currJP;
                             JPS_Tools.GetStraightLineJPs( current, dir, jpsTempList, target );
                         }
+                        //斜向
                         else
                         {
-                            parent = JPS_Entrance.I.Get( parent.X + dir.x, parent.X + dir.y );
-                            //斜向探测
+                            parent = JPS_Entrance.I.Get( currJP.X + dir.x, currJP.Y + dir.y ,true);
+                            //斜向探测，遇到边界或障碍物终止
                             while (parent != null && !parent.IsObs)
                             {
-                                parent.AddDir( dir );
+                                //parent.AddDir( dir );
                                 var tempDir = new Vector2Int( dir.x, dir.y );
                                 //斜向节点检查自身是否为jp
                                 //不需要
-                                //if (JPS_Tools.IsJumpPoint( parent, tempDir, out var biasNeib ))
-                                //{
-
-                                //}
-
+                                Debug.Log( $"<color=red>parent={parent}</color>" );
                                 JPS_Tools.GetBiasStraightLineJPs( parent, tempDir, target, jpsTempList );
+                                parent = JPS_Entrance.I.Get( parent.X + dir.x, parent.Y + dir.y );
                             }
                         }
                     }
@@ -87,9 +89,9 @@ namespace JPS
                     TILE_DIRECTION.DIRECTION_LEFT,
                     //斜向
                     TILE_DIRECTION.DIRECTION_RIGHT_UP,
+                    TILE_DIRECTION.DIRECTION_RIGHT_DOWN,
                     TILE_DIRECTION.DIRECTION_LEFT_UP,
                     TILE_DIRECTION.DIRECTION_LEFT_DOWN,
-                    TILE_DIRECTION.DIRECTION_RIGHT_DOWN,
                 };
 
             return node._dirList;
