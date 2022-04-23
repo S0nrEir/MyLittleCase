@@ -29,6 +29,18 @@ namespace JPS
             if (biasDirection.x == 0 && biasDirection.y == 0)
                 return temp_jp_list;
 
+            //对于parent自身，先检查周围直线方向
+            if ( node._dirList != null && node._dirList.Count != 0)
+            {
+                foreach (var dir in node._dirList)
+                {
+                    if (GetTileScaneDir( dir ) != TileScanDirection.Straight)
+                        continue;
+
+                    GetStraightLineJPs( node, dir, temp_jp_list, target );
+                }//end for
+            }
+
             if (biasDirection.x > 0 )
             {
                 GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_RIGHT, temp_jp_list, target );
@@ -39,17 +51,8 @@ namespace JPS
                 GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_LEFT, temp_jp_list, target );
                 GetStraightLineJPs( node, biasDirection.y > 0 ? TILE_DIRECTION.DIRECTION_UP : TILE_DIRECTION.DIRECTION_DOWN, temp_jp_list, target );
             }
-            //GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_UP,    temp_jp_list ,target);
-            //GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_DOWN,  temp_jp_list ,target);
-            //GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_RIGHT, temp_jp_list ,target);
-            //GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_LEFT,  temp_jp_list ,target);
 
             return temp_jp_list;
-
-            //if (temp_jp_list.Count != 0)
-            //    return temp_jp_list;
-
-            //return GetBiasStraightLineJPs( JPS_Entrance.I.Get(node.X + biasDirection.x,node.Y + biasDirection.y) ,biasDirection , temp_jp_list);
         }
 
         /// <summary>
@@ -68,7 +71,8 @@ namespace JPS
             var directionVec = new Vector2Int( direction.x, direction.y );
             //直线跳跃搜索的终止条件是直到遇到跳点或边界为止
             //斜向只检查一次就可以了
-            JPS_Node temp = ins.Get( node.X + direction.x, node.Y + direction.y );
+            //JPS_Node temp = ins.Get( node.X + direction.x, node.Y + direction.y );
+            var temp = node;
             while (temp != null && !temp.IsObs)
             {
                 if (temp.ID == target.ID)
@@ -77,14 +81,22 @@ namespace JPS
                     temp_jp_list.Add( target );
                     break;
                 }
-                if (IsJumpPoint( temp, directionVec ))
+                if (IsJumpPoint( temp, directionVec ,out var biasNeibArr))
                 {
-                    //if (!JPS_Search_Mgr.I.ContainsInCloseDic( node ))
-                    //    temp_jp_list.Add( node );
-
                     if (!JPS_Search_Mgr.I.ContainsInCloseDic( temp ))
-                        temp_jp_list.Add( temp );
+                    {
+                        foreach (var dir in biasNeibArr)
+                        {
+                            if (dir.x == 0 && dir.y == 0)
+                                continue;
 
+                            temp.AddDir(dir);
+                        }
+                        temp.AddDir( direction );
+                        temp_jp_list.Add( temp );
+                        //node.AddDir( direction );
+                        //temp_jp_list.Add( node );
+                    }
                     break;
                 }
                 temp = ins.Get( temp.X + direction.x, temp.Y + direction.y );
@@ -92,9 +104,12 @@ namespace JPS
             return;
         }
 
-        /// 检查一个node是否为跳点，是返回true
-        private static bool IsJumpPoint ( JPS_Node node, Vector2Int direction )
+        /// <summary>
+        /// 检查一个node是否为跳点，在直线见方向上的任意点是否有forceNeib，是返回true
+        /// </summary>
+        private static bool IsJumpPoint ( JPS_Node node, Vector2Int direction , out (int x,int y)[] biasNeibDir)
         {
+            biasNeibDir = new (int x, int y)[2];
             if (direction == Vector2Int.zero)
                 return false;
 
@@ -222,6 +237,8 @@ namespace JPS
             //检查两方向任意点是否为强迫邻居和跳点
             var neibNode = JPS_Entrance.I.Get( nextNode.X + neibOffset_1.x, nextNode.Y + neibOffset_1.y ,true);
             JPS_Node isObjsNode = null;
+            var hasNeib = false;
+            var log = (x:0, y:0);
             if (neibNode != null && !neibNode.IsObs)
             {
                 isObjsNode = JPS_Entrance.I.Get( neibNode.X + backOffset_1.x, neibNode.Y + backOffset_1.y, true );
@@ -230,9 +247,14 @@ namespace JPS
                 Debug.Log( $"<color=white>neibOffset_1:{neibOffset_1}</color>" );
                 Debug.Log( $"<color=white>backOffset_1:{backOffset_1}</color>" );
 
-                //JP检查
-                if (isObjsNode != null && isObjsNode.IsObs)
-                    return true;
+                hasNeib |= isObjsNode != null && isObjsNode.IsObs;
+                //#for test
+                log = (isObjsNode.X - node.X, isObjsNode.Y - node.Y);
+                if (hasNeib)
+                {
+                    Debug.Log($"log:{log.x},{log.y}");
+                    biasNeibDir[0] = log;
+                }
             }
 
             neibNode = JPS_Entrance.I.Get( nextNode.X + neibOffset_2.x, nextNode.Y + neibOffset_2.y, true );
@@ -246,11 +268,64 @@ namespace JPS
                 Debug.Log( $"<color=white>backOffset_2:{backOffset_2}</color>" );
 
                 //JP检查
-                if (isObjsNode != null && isObjsNode.IsObs)
-                    return true;
-            }
+                //if (isObjsNode != null && isObjsNode.IsObs)
+                //    return true;
 
-            return false;
+                log = (isObjsNode.X - node.X, isObjsNode.Y - node.Y);
+                if (hasNeib)
+                {
+                    Debug.Log( $"log:{log.x},{log.y}" );
+                    biasNeibDir[0] = log;
+                }
+            }
+            return hasNeib;
+        }
+
+        /// <summary>
+        /// 获取方向
+        /// </summary>
+        public static TileDirectionEnum GetTileDir ( (int x, int y) dir )
+        {
+            var type = GetTileScaneDir( dir );
+            if (type == TileScanDirection.None)
+                return TileDirectionEnum.None;
+
+            if (type == TileScanDirection.Straight)
+            {
+                if (dir.x == 0)
+                    return dir.y > 0 ? TileDirectionEnum.Up : TileDirectionEnum.Down;
+
+                return dir.x > 0 ? TileDirectionEnum.Right : TileDirectionEnum.Left;
+            }
+            else
+            {
+                if (dir.y > 0)
+                    return dir.x > 0 ? TileDirectionEnum.RightUp : TileDirectionEnum.LeftUp;
+
+                return dir.x > 0 ? TileDirectionEnum.RightDown : TileDirectionEnum.LeftDown;
+            }
+        }
+
+        public static TileDirectionEnum GetTileDir ( Vector2Int dir )
+        {
+            var type = GetTileScaneDir( dir );
+            if (type == TileScanDirection.None)
+                return TileDirectionEnum.None;
+
+            if (type == TileScanDirection.Straight)
+            {
+                if (dir.x == 0)
+                    return dir.y > 0 ? TileDirectionEnum.Up : TileDirectionEnum.Down;
+
+                return dir.x > 0 ? TileDirectionEnum.Right : TileDirectionEnum.Left;
+            }
+            else
+            {
+                if (dir.y > 0)
+                    return dir.x > 0 ? TileDirectionEnum.RightUp : TileDirectionEnum.LeftUp;
+
+                return dir.x > 0 ? TileDirectionEnum.RightDown : TileDirectionEnum.LeftDown;
+            }
         }
 
         /// <summary>
@@ -270,6 +345,17 @@ namespace JPS
                 return TileScanDirection.None;
 
             return dir.x != 0 && dir.y != 0 ? TileScanDirection.Bias : TileScanDirection.Straight;
+        }
+
+        public static (int x, int y)[] DecompBiasDirectioin ((int x,int y) dir)
+        {
+            if (GetTileScaneDir( dir ) != TileScanDirection.Bias)
+                return null;
+
+            if (dir.x > 0)
+                return new (int x, int y)[] { (1, 0), (0, dir.y > 0 ? 1 : -1) };
+            else
+                return new (int x, int y)[] { (-1, 0), (0, dir.y > 0 ? 1 : -1) };
         }
 
         ////返回某一直线方向上的跳点集合

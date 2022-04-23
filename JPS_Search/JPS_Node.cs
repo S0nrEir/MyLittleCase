@@ -40,32 +40,43 @@ namespace JPS
         public int X { get; private set; }
         public int Y { get; private set; }
 
+        public List<(int x, int y)> _dirList { get; private set; } = null;
 
-        //#todo优化方向列表
-        private List<(int x, int y)> _dirList = null;
-        public List<(int x, int y)> DirList => _dirList;
-        public void SetDir ( List<(int x, int y)> dirToSet )
+        public void AddDir ( (int x, int y) dirToAdd )
         {
-            if (dirToSet is null || dirToSet.Count == 0)
-            {
-                Debug.Log( $"<color=red>faild to set dir id:{ID},pos:{ToString()}</color>" );
-                return;
-            }
+            if(_dirList is null)
+                _dirList = new List<(int x,int y)>();
 
-            _dirList = dirToSet;
+            //#todo优化为位运算
+            if (_dirList.Contains( dirToAdd ))
+                return;
+
+            _dirList.Add( dirToAdd );
         }
 
-        public void SetDir ( (int x,int y)[] dirToSet )
-        {
-            if (dirToSet is null || dirToSet.Length == 0)
-            {
-                Debug.Log( $"<color=red>faild to set dir id:{ID},pos:{ToString()}</color>" );
-                return;
-            }
+        //public void SetDir ( List<(int x, int y)> dirToSet )
+        //{
+        //    if (dirToSet is null || dirToSet.Count == 0)
+        //    {
+        //        Debug.Log( $"<color=red>faild to set dir id:{ID},pos:{ToString()}</color>" );
+        //        return;
+        //    }
 
-            _dirList.Clear();
-            _dirList.AddRange(dirToSet);
-        }
+        //    _dirList = dirToSet;
+        //}
+
+
+        //public void SetDir ( params (int x,int y)[] dirToSet )
+        //{
+        //    if (dirToSet is null || dirToSet.Length == 0)
+        //    {
+        //        Debug.Log( $"<color=red>faild to set dir id:{ID},pos:{ToString()}</color>" );
+        //        return;
+        //    }
+
+        //    _dirList.Clear();
+        //    _dirList.AddRange(dirToSet);
+        //}
 
         //ID池
         public class Node_ID_Pool

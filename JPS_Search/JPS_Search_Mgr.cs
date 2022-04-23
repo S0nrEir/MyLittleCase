@@ -39,13 +39,25 @@ namespace JPS
                 else
                 {
                     dirList = DirList( currJP );
+                    parent = currJP; ;
+                    //初始点直线探测然后斜向探测到地图边界或遇到障碍
                     foreach (var dir in dirList)
                     {
-
-                        JPS_Tools.GetStraightLineJPs( parent, dir, jpsTempList, target );
-
+                        if (JPS_Tools.GetTileScaneDir( dir ) == TileScanDirection.Straight)
+                            JPS_Tools.GetStraightLineJPs( currJP, dir, jpsTempList, target );
+                        else
+                        {
+                            parent = JPS_Entrance.I.Get( parent.X + dir.x, parent.X + dir.y );
+                            //斜向探测
+                            while (parent != null && !parent.IsObs)
+                            {
+                                parent.AddDir( dir );
+                                JPS_Tools.GetBiasStraightLineJPs( parent, new Vector2Int( dir.x, dir.y ), target, jpsTempList );
+                            }
+                        }
                     }
-
+                    AddToOpen( jpsTempList );
+                    jpsTempList.Clear();
                 }
             }
 
@@ -71,7 +83,7 @@ namespace JPS
                     TILE_DIRECTION.DIRECTION_RIGHT_DOWN,
                 };
 
-            return node.DirList;
+            return node._dirList;
         }
 
         #region old_jps
@@ -245,6 +257,20 @@ namespace JPS
         {
             if (!_openSet.Contains( node ))
                 _openSet.Add( node );
+        }
+
+        private void AddToOpen ( List<JPS_Node> nodeList )
+        {
+            if (nodeList is null || nodeList.Count == 0)
+                return;
+
+            foreach (var node in nodeList)
+            {
+                if (ContainsInCloseDic( node ))
+                    continue;
+
+                AddToOpen( node );
+            }
         }
 
         private JPS_Node GetClosetInOpen ( JPS_Node start, JPS_Node target )
