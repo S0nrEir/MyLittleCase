@@ -33,9 +33,7 @@ namespace JPS
                 AddToCloseDic( currJP );
 
                 if (currJP.ID == target.ID)
-                {
                     return JPS_Gen( currJP );
-                }
                 else
                 {
                     dirList = DirList( currJP );
@@ -44,7 +42,10 @@ namespace JPS
                     foreach (var dir in dirList)
                     {
                         if (JPS_Tools.GetTileScaneDir( dir ) == TileScanDirection.Straight)
-                            JPS_Tools.GetStraightLineJPs( currJP, dir, jpsTempList, target );
+                        {
+                            current = currJP;
+                            JPS_Tools.GetStraightLineJPs( current, dir, jpsTempList, target );
+                        }
                         else
                         {
                             parent = JPS_Entrance.I.Get( parent.X + dir.x, parent.X + dir.y );
@@ -52,7 +53,15 @@ namespace JPS
                             while (parent != null && !parent.IsObs)
                             {
                                 parent.AddDir( dir );
-                                JPS_Tools.GetBiasStraightLineJPs( parent, new Vector2Int( dir.x, dir.y ), target, jpsTempList );
+                                var tempDir = new Vector2Int( dir.x, dir.y );
+                                //斜向节点检查自身是否为jp
+                                //不需要
+                                //if (JPS_Tools.IsJumpPoint( parent, tempDir, out var biasNeib ))
+                                //{
+
+                                //}
+
+                                JPS_Tools.GetBiasStraightLineJPs( parent, tempDir, target, jpsTempList );
                             }
                         }
                     }

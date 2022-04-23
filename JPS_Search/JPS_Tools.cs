@@ -41,16 +41,16 @@ namespace JPS
                 }//end for
             }
 
-            if (biasDirection.x > 0 )
-            {
-                GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_RIGHT, temp_jp_list, target );
-                GetStraightLineJPs( node, biasDirection.y > 0 ?  TILE_DIRECTION.DIRECTION_UP : TILE_DIRECTION.DIRECTION_DOWN, temp_jp_list, target );
-            }
-            else
-            {
-                GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_LEFT, temp_jp_list, target );
-                GetStraightLineJPs( node, biasDirection.y > 0 ? TILE_DIRECTION.DIRECTION_UP : TILE_DIRECTION.DIRECTION_DOWN, temp_jp_list, target );
-            }
+            //if (biasDirection.x > 0 )
+            //{
+            //    GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_RIGHT, temp_jp_list, target );
+            //    GetStraightLineJPs( node, biasDirection.y > 0 ?  TILE_DIRECTION.DIRECTION_UP : TILE_DIRECTION.DIRECTION_DOWN, temp_jp_list, target );
+            //}
+            //else
+            //{
+            //    GetStraightLineJPs( node, TILE_DIRECTION.DIRECTION_LEFT, temp_jp_list, target );
+            //    GetStraightLineJPs( node, biasDirection.y > 0 ? TILE_DIRECTION.DIRECTION_UP : TILE_DIRECTION.DIRECTION_DOWN, temp_jp_list, target );
+            //}
 
             return temp_jp_list;
         }
@@ -107,7 +107,7 @@ namespace JPS
         /// <summary>
         /// 检查一个node是否为跳点，在直线见方向上的任意点是否有forceNeib，是返回true
         /// </summary>
-        private static bool IsJumpPoint ( JPS_Node node, Vector2Int direction , out (int x,int y)[] biasNeibDir)
+        public static bool IsJumpPoint ( JPS_Node node, Vector2Int direction , out (int x,int y)[] biasNeibDir)
         {
             biasNeibDir = new (int x, int y)[2];
             if (direction == Vector2Int.zero)
