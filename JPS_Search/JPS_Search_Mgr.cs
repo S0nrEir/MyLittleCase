@@ -1,197 +1,398 @@
-﻿using System.Collections.Generic;
+﻿using JPS;
+using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// JPS寻路管理器
-/// </summary>
-public class JPS_Search_Mgr
+namespace JPS
 {
-    /// <summary>
-    /// JPS跳点搜索，返回一条从start到target的路径
-    /// </summary>
-    public List<JPS_Node> JPS ( JPS_Node star, JPS_Node target )
-    {
-        return null;
-    }
 
     /// <summary>
-    /// AStar
+    /// JPS寻路管理器
     /// </summary>
-    public List<JPS_Node> AStar ( JPS_Node start, JPS_Node target )
+    public class JPS_Search_Mgr
     {
-        Reset();
-        List<JPS_Node> realPathList = new List<JPS_Node>();
-        JPS_Node curr = start;
-        JPS_Node[] neibs = null;
-        AddToOpen( curr );
-        while (_openSet.Count != 0)
+        //dir为基础的jps寻路算法
+        public List<JPS_Node> JPS_New ( JPS_Node start, JPS_Node target )
         {
-            curr = GetClosetInOpen( start, target );
-            if (curr.ID == target.ID)
-                return Gen( target );
-            else
+            //对于四方向，只进行直线遍历
+            //八方向增加四条斜线
+            Reset();
+            JPS_Node curr;
+            AddToOpen( start );
+            //保存拿到的跳点集合
+            List<JPS_Node> temp_jp_list = new List<JPS_Node>();
+            List<(int x, int y)> dirList = new List<(int, int)>();
+            JPS_Node offsetNode = null;
+            while (_openSet.Count != 0)
             {
-                RemoveFromOpen( curr );
-                AddToCloseDic( curr );
-            }
-
-            //周围点
-            neibs = GetNeib( curr );
-            foreach (var p in neibs)
-            {
-                if (p is null || p.IsObs || ContainsInCloseDic( p ))
-                    continue;
-
-                if (!ContainsInOpenDic( p ))
+                curr = GetClosetInOpen( start, target );
+                if (dirList.Count == 0)//起点
                 {
-                    p.Parent = curr;
-                    AddToOpen( p );
+                    dirList.Add( TILE_DIRECTION.DIRECTION_UP );
+                    dirList.Add( TILE_DIRECTION.DIRECTION_DOWN );
+                    dirList.Add( TILE_DIRECTION.DIRECTION_LEFT );
+                    dirList.Add( TILE_DIRECTION.DIRECTION_RIGHT );
+                    dirList.Add( TILE_DIRECTION.DIRECTION_RIGHT_UP );
+                    dirList.Add( TILE_DIRECTION.DIRECTION_RIGHT_Down );
+                    dirList.Add( TILE_DIRECTION.DIRECTION_LEFT_UP );
+                    dirList.Add( TILE_DIRECTION.DIRECTION_LEFT_DOWN );
+                }
+                else//寻找父方向
+                {
+                    
+                }
+
+                foreach (var dir in dirList)
+                {
+                    offsetNode = curr;
+                    while (offsetNode != null && !offsetNode.IsObs)
+                    {
+                        offsetNode = JPS_Entrance.I.Get( offsetNode.X + dir.x, offsetNode.Y + dir.y );
+                        if (offsetNode is null || offsetNode.IsObs)
+                            break;
+
+                        //直线
+                        if (dir.x == 0 || dir.y == 0)
+                            JPS_Tools.GetStraightLineJPs( offsetNode, dir, temp_jp_list, target );
+                        else
+                            JPS_Tools.GetBiasStraightLineJPs( offsetNode, new Vector2Int(dir.x,dir.y), target, temp_jp_list );
+
+                        if (temp_jp_list.Count != 0)
+                        {
+                            foreach (var jp in _jpsList)
+                            {
+                                if (jp is null || ContainsInCloseDic( jp ))
+                                    continue;
+
+                                AddToOpen( jp );
+                            }
+                        }
+
+                        temp_jp_list.Clear();
+                    }
+
+                }
+
+                if (curr.ID != start.ID && curr.ID != target.ID)
+                    JPS_Entrance.I.SetJPTile_Test( curr );
+
+                if (curr.ID == target.ID)
+                {
+                    return JPS_Gen( curr );
                 }
                 else
                 {
+                    RemoveFromOpen( curr );
+                    AddToCloseDic( curr );
+                }
+
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// JPS跳点搜索，返回一条从start到target的路径，八方向
+        /// </summary>
+        public List<JPS_Node> JPS ( JPS_Node start, JPS_Node target )
+        {
+            //对于四方向，只进行直线遍历
+            //八方向增加四条斜线
+            Reset();
+            JPS_Node curr;
+            AddToOpen( start );
+            //保存拿到的跳点集合
+            List<JPS_Node> temp_jp_list = new List<JPS_Node>();
+
+            while (_openSet.Count != 0)
+            {
+                curr = GetClosetInOpen( start, target );
+
+                if(curr.ID != start.ID && curr.ID != target.ID)
+                    JPS_Entrance.I.SetJPTile_Test( curr );
+
+                if (curr.ID == target.ID)
+                {
+                    return JPS_Gen( curr );
+                }
+                else
+                {
+                    RemoveFromOpen( curr );
+                    AddToCloseDic( curr );
+                }
+
+                //当前点水平四方向的跳点探索
+                JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_UP,    temp_jp_list,target );
+                JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_DOWN,  temp_jp_list,target );
+                JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_LEFT,  temp_jp_list,target );
+                JPS_Tools.GetStraightLineJPs( curr, TILE_DIRECTION.DIRECTION_RIGHT, temp_jp_list,target );
+
+                //尝试优化一下，如果这次遍历直线方向找到了跳点，那就不进行斜向探测
+                if (temp_jp_list.Count == 0)
+                {
+                    for (var i = 0; i < _biasWays.Length; i++)
+                    {
+                        //当前跳点为起点的 所有新跳点的集合
+                        temp_jp_list.AddRange
+                            (
+                                JPS_Tools.GetBiasStraightLineJPs
+                                (
+                                    //curr, 
+                                    JPS_Entrance.I.Get( curr.X + _biasWays[i].x, curr.Y + _biasWays[i].y ),
+                                    new Vector2Int( _biasWays[i].x, _biasWays[i].y ),
+                                    target,
+                                    temp_jp_list
+                                )
+                            );
+                        //如果找到任何一个，直接跳出
+                        if (temp_jp_list.Count != 0)
+                            i = _biasWays.Length - 1;
+
+                    }//end bias for   
+                }
+
+                foreach (var jp in temp_jp_list)
+                {
+                    if (jp is null || ContainsInCloseDic( jp ))
+                        continue;
+                    
+                    jp.SetJumpPoint( true );
+                    if (!ContainsInOpenDic( jp ))
+                        AddToOpen( jp );
+
+                    jp.Parent = curr;
+                    if (jp.ID == target.ID)
+                        return JPS_Gen( jp );
+                }
+                temp_jp_list.Clear();
+
+            }
+            
+            return null;
+        }
+
+
+        /// <summary>
+        /// AStar
+        /// </summary>
+        public List<JPS_Node> AStar ( JPS_Node start, JPS_Node target )
+        {
+            Reset();
+            JPS_Node curr = start;
+            JPS_Node[] neibs;
+            AddToOpen( curr );
+            while (_openSet.Count != 0)
+            {
+                curr = GetClosetInOpen( start, target );
+                if (curr.ID == target.ID)
+                    return Gen( target );
+                else
+                {
+                    RemoveFromOpen( curr );
+                    AddToCloseDic( curr );
+                }
+
+                //周围点
+                neibs = GetNeib( curr );
+                foreach (var p in neibs)
+                {
+                    if (p is null || p.IsObs || ContainsInCloseDic( p ))
+                        continue;
+
+                    if (!ContainsInOpenDic( p ))
+                    {
+                        AddToOpen( p );
+                    }
+                    //else
+                    //{
+                    //    p.Parent = curr;
+                    //}
                     p.Parent = curr;
                 }
             }
+            return null;
         }
-        return null;
-    }
 
-    private List<JPS_Node> Gen ( JPS_Node node )
-    {
-        var list = new List<JPS_Node>();
-        while (node != null)
+        private List<JPS_Node> JPS_Gen ( JPS_Node node )
         {
-            list.Add( node );
-            node = node.Parent;
-        }
-        return list;
-    }
+            return new List<JPS_Node>(0);
 
-    private JPS_Node[] GetNeib ( JPS_Node node )
-    {
-        JPS_Node[] arr = new JPS_Node[_defaultWays.Length];
-        var ins = JPS_Entrance.I;
-        for (var i = 0; i < _defaultWays.Length; i++)
-            arr[i] = ins.Get( node.X + _defaultWays[i].Item1, node.Y + _defaultWays[i].Item2 );
-
-        return arr;
-    }
-
-    private void RemoveFromOpen ( JPS_Node node )
-    {
-        _openSet.Remove( node );
-    }
-
-    private void AddToOpen (JPS_Node node)
-    {
-        if (!_openSet.Contains( node ))
-            _openSet.Add( node );
-    }
-
-    private JPS_Node GetClosetInOpen ( JPS_Node start, JPS_Node target )
-    {
-        double dis1, dis2;
-        JPS_Node node = null;
-        foreach (var p in _openSet)
-        {
-            if (node is null)
+            var list = new List<JPS_Node>();
+            while (node != null)
             {
-                node = p;
-                continue;
+                list.Add( node );
+                node = node.Parent;
+            }
+            return list;
+        }
+
+
+        private List<JPS_Node> Gen ( JPS_Node node )
+        {
+            var list = new List<JPS_Node>();
+            while (node != null)
+            {
+                list.Add( node );
+                node = node.Parent;
+            }
+            return list;
+        }
+
+        private JPS_Node[] GetNeib ( JPS_Node node )
+        {
+            JPS_Node[] arr = new JPS_Node[_defaultWays.Length];
+            var ins = JPS_Entrance.I;
+            for (var i = 0; i < _defaultWays.Length; i++)
+                arr[i] = ins.Get( node.X + _defaultWays[i].Item1, node.Y + _defaultWays[i].Item2 );
+
+            return arr;
+        }
+
+        private void RemoveFromOpen ( JPS_Node node )
+        {
+            _openSet.Remove( node );
+        }
+
+        private void AddToOpen ( JPS_Node node )
+        {
+            if (!_openSet.Contains( node ))
+                _openSet.Add( node );
+        }
+
+        private JPS_Node GetClosetInOpen ( JPS_Node start, JPS_Node target )
+        {
+            //#todo优化 复杂地形跳点也很多，遍历取出寻路代价最低的跳点效率太慢了
+            double dis1, dis2;
+            JPS_Node node = null;
+            foreach (var p in _openSet)
+            {
+                if (node is null)
+                {
+                    node = p;
+                    continue;
+                }
+
+                dis1 = JPS_Tools.EuclideanDistance( start, p ) + JPS_Tools.EuclideanDistance( p, target );
+                dis2 = JPS_Tools.EuclideanDistance( start, node ) + JPS_Tools.EuclideanDistance( node, target );
+                node = dis1 < dis2 ? p : node;
             }
 
-            dis1 = EuclideanDistance( start, p ) + EuclideanDistance( p, target );
-            dis2 = EuclideanDistance( start, node ) + EuclideanDistance( node, target );
-
-            if (dis1 < dis2)
-                node = p;
+            return node;
         }
 
-        return node;
-    }
-
-    /// <summary>
-    /// 添加到关闭列表
-    /// </summary>
-    private void AddToCloseDic (JPS_Node node)
-    {
-        if (_closeDic.ContainsKey( node.ID ))
-            return;
-
-        _closeDic.Add( node.ID , node);
-    }
-
-    private bool ContainsInCloseDic ( JPS_Node node ) => _closeDic.ContainsKey( node.ID );
-    private bool ContainsInOpenDic ( JPS_Node node ) => _openSet.Contains( node );
-
-
-    private void EnsureInit ()
-    {
-        if (_closeDic is null)
-            _closeDic = new Dictionary<int, JPS_Node>();
-
-        if (_openList is null)
-            _openList = new List<JPS_Node>();
-
-        if (_pathList is null)
-            _pathList = new List<JPS_Node>();
-
-        if (_openSet is null)
-            _openSet = new HashSet<JPS_Node>();
-    }
-
-    /// <summary>
-    /// 两点间的欧氏距离
-    /// </summary>
-    private double EuclideanDistance(JPS_Node p,JPS_Node pp)
-    {
-        var dx = Mathf.Abs( p.X - pp.X );
-        var dy = Mathf.Abs( p.Y - pp.Y );
-        return Mathf.Sqrt( dx * dx + dy * dy );
-    }
-
-    private void Reset ()
-    {
-        _closeDic.Clear();
-        _openList.Clear();
-        _pathList.Clear();
-        _openSet.Clear();
-    }
-
-    private Dictionary<int, JPS_Node> _closeDic = null;
-    private List<JPS_Node> _openList = null;//no use
-    private HashSet<JPS_Node> _openSet = null;
-    private List<JPS_Node> _pathList = null;
-
-    private static JPS_Search_Mgr _i = null;
-
-    public static JPS_Search_Mgr I
-    {
-        get
+        /// <summary>
+        /// 添加到关闭列表
+        /// </summary>
+        private void AddToCloseDic ( JPS_Node node )
         {
-            if (_i is null)
+            if (_closeDic.ContainsKey( node.ID ))
+                return;
+
+            _closeDic.Add( node.ID, node );
+        }
+
+        public bool ContainsInCloseDic ( JPS_Node node ) => _closeDic.ContainsKey( node.ID );
+        private bool ContainsInOpenDic ( JPS_Node node ) => _openSet.Contains( node );
+
+
+        private void EnsureInit ()
+        {
+            if (_closeDic is null)
+                _closeDic = new Dictionary<int, JPS_Node>();
+
+            if (_openList is null)
+                _openList = new List<JPS_Node>();
+
+            if (_pathList is null)
+                _pathList = new List<JPS_Node>();
+
+            if (_openSet is null)
+                _openSet = new HashSet<JPS_Node>();
+
+            if (_jpsList is null)
+                _jpsList = new List<JPS_Node>();
+        }
+
+        private void Reset ()
+        {
+            _closeDic.Clear();
+            _openList.Clear();
+            _pathList.Clear();
+            _openSet.Clear();
+            _jpsList.Clear();
+        }
+
+        private Dictionary<int, JPS_Node> _closeDic = null;
+        private List<JPS_Node> _openList = null;//no use
+        private HashSet<JPS_Node> _openSet = null;
+        private List<JPS_Node> _pathList = null;
+        private List<JPS_Node> _jpsList = null;//跳点列表
+
+        private static JPS_Search_Mgr _i = null;
+
+        public static JPS_Search_Mgr I
+        {
+            get
             {
-                _i = new JPS_Search_Mgr();
-                _i.EnsureInit();
+                if (_i is null)
+                {
+                    _i = new JPS_Search_Mgr();
+                    _i.EnsureInit();
+                }
+
+                var tupl = new Tuple<int, int>( 0, 0 );
+
+                return _i;
             }
-
-            var tupl = new Tuple<int, int>( 0, 0 );
-
-            return _i;
         }
+
+        private static (int, int)[] _defaultWays = new (int, int)[]
+            {
+                TILE_DIRECTION.DIRECTION_UP,//👆
+                TILE_DIRECTION.DIRECTION_DOWN,//👇
+                TILE_DIRECTION.DIRECTION_LEFT,//👈
+                TILE_DIRECTION.DIRECTION_RIGHT,//👉
+            };
+
+        private static (int, int)[] _default_8_Ways = new (int, int)[]
+            {
+                TILE_DIRECTION.DIRECTION_UP,//👆
+                TILE_DIRECTION.DIRECTION_DOWN,//👇
+                TILE_DIRECTION.DIRECTION_LEFT,//👈
+                TILE_DIRECTION.DIRECTION_RIGHT,//👉
+                TILE_DIRECTION.DIRECTION_LEFT_UP,//↖
+                TILE_DIRECTION.DIRECTION_LEFT_DOWN,//↙
+                TILE_DIRECTION.DIRECTION_RIGHT_Down,//↘
+                TILE_DIRECTION.DIRECTION_RIGHT_UP,//↗
+            };
+
+        private static (int x, int y)[] _biasWays = new (int, int)[]
+            {
+                TILE_DIRECTION.DIRECTION_LEFT_UP,//↖
+                TILE_DIRECTION.DIRECTION_LEFT_DOWN,//↙
+                TILE_DIRECTION.DIRECTION_RIGHT_Down,//↘
+                TILE_DIRECTION.DIRECTION_RIGHT_UP,//↗
+            };
+
+
+
+        /// <summary>
+        /// 默认四向通行
+        /// </summary>
+        private const int DEFAULT_FINDING_WAYS = 0x4;
+
     }
 
-    private static (int, int)[] _defaultWays = new (int, int)[]
-        {
-            (0,1),//👆
-            (0,-1),//👇
-            (-1,0),//👈
-            (1,0),//👉
-        };
-
-    /// <summary>
-    /// 默认四向通行
-    /// </summary>
-    private const int DEFAULT_FINDING_WAYS = 0x4;
-
+    public class TILE_DIRECTION
+    {
+        //水平四方向
+        public static readonly (int x, int y) DIRECTION_UP = (0, 1);
+        public static readonly (int x, int y) DIRECTION_DOWN = (0, -1);
+        public static readonly (int x, int y) DIRECTION_LEFT = (-1, 0);
+        public static readonly (int x, int y) DIRECTION_RIGHT = (1, 0);
+        //斜向四方向
+        public static readonly (int x, int y) DIRECTION_RIGHT_UP = (1, 1);
+        public static readonly (int x, int y) DIRECTION_RIGHT_Down = (1, -1);
+        public static readonly (int x, int y) DIRECTION_LEFT_UP = (-1, 1);
+        public static readonly (int x, int y) DIRECTION_LEFT_DOWN = (-1, -1);
+    }
 }
