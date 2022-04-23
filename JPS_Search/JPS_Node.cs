@@ -17,11 +17,13 @@ namespace JPS
             ID = Node_ID_Pool.Gen();
             SetObs( false );
             SetJumpPoint( false );
+            _dirList = new List<(int x, int y)>();
         }
 
         public void Reset ()
         {
             SetJumpPoint( false );
+            Parent = null;
         }
 
         public int ID = -1;
@@ -38,11 +40,48 @@ namespace JPS
         public int X { get; private set; }
         public int Y { get; private set; }
 
+        public List<(int x, int y)> _dirList { get; private set; } = null;
+
+        public void AddDir ( (int x, int y) dirToAdd )
+        {
+            if(_dirList is null)
+                _dirList = new List<(int x,int y)>();
+
+            //#todo优化为位运算
+            if (_dirList.Contains( dirToAdd ))
+                return;
+
+            _dirList.Add( dirToAdd );
+        }
+
+        //public void SetDir ( List<(int x, int y)> dirToSet )
+        //{
+        //    if (dirToSet is null || dirToSet.Count == 0)
+        //    {
+        //        Debug.Log( $"<color=red>faild to set dir id:{ID},pos:{ToString()}</color>" );
+        //        return;
+        //    }
+
+        //    _dirList = dirToSet;
+        //}
+
+
+        //public void SetDir ( params (int x,int y)[] dirToSet )
+        //{
+        //    if (dirToSet is null || dirToSet.Length == 0)
+        //    {
+        //        Debug.Log( $"<color=red>faild to set dir id:{ID},pos:{ToString()}</color>" );
+        //        return;
+        //    }
+
+        //    _dirList.Clear();
+        //    _dirList.AddRange(dirToSet);
+        //}
+
         //ID池
         public class Node_ID_Pool
         {
             private static int id = int.MaxValue;
-
             public static int Gen () => id--;
         }
 
