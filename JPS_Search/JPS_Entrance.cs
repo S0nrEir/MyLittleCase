@@ -16,7 +16,13 @@ namespace JPS
 
         void Start ()
         {
-            CreateMap();
+            //CreateMap();
+            
+            
+            CreateMap_1();
+            _start = Get( 0, 0 );
+            _target = Get( 7, 0 );
+
             _drawedPathSet = new HashSet<JPS_Node>();
 
             //var pathList = JPS_Search_Mgr.I.GetPath( NodesArr[14,9], NodesArr[80, 94] );
@@ -39,7 +45,7 @@ namespace JPS
         /// <summary>
         /// 从arr中获取一个点，拿不到返回null
         /// </summary>
-        public JPS_Node Get ( int x, int y ,bool includeObs = false)
+        public JPS_Node Get ( int x, int y ,bool includeObs = true)
         {
             if (x < 0 || y < 0)
             {
@@ -55,12 +61,7 @@ namespace JPS
 
             var node = NodesArr[x, y];
             if (node.IsObs)
-            {
-                if (includeObs)
-                    return node;
-
-                return null;
-            }
+                return includeObs ? node : null;
 
             return node;
         }
@@ -79,10 +80,16 @@ namespace JPS
             foreach (var p in NodesArr)
                 p.Reset();
 
+            var itor = _drawedPathSet.GetEnumerator();
+            while (itor.MoveNext())
+                _tileMap.SetTile( new Vector3Int( itor.Current.X, itor.Current.Y, 0 ), _roadTile );
+
+            _drawedPathSet.Clear();
             Debug.Log($"<color=green>start:{_start}</color>");
             Debug.Log( $"<color=green>target:{_target}</color>" );
 
-            var pathList = _pathFindingType == PathFindingTypeEnum.AStar ? JPS_Search_Mgr.I.AStar( _start, _target ) : JPS_Search_Mgr.I.JPS(_start,_target);
+            //var pathList = _pathFindingType == PathFindingTypeEnum.AStar ? JPS_Search_Mgr.I.AStar( _start, _target ) : JPS_Search_Mgr.I.JPS( _start, _target );
+            var pathList = _pathFindingType == PathFindingTypeEnum.AStar ? JPS_Search_Mgr.I.AStar( _start, _target ) : JPS_Search_Mgr.I.JPS_New_New( _start,_target);
             DrawPath( pathList );
         }
 
@@ -163,6 +170,32 @@ namespace JPS
             }
         }
 
+
+        private void CreateMap_1 ()
+        {
+            NodesArr = new JPS_Node[MAX_ROW_1, MAX_COL_1];
+            JPS_Node node = null;
+            for (int i = 0; i < MAX_ROW_1; i++)
+            {
+                for (int j = 0; j < MAX_COL_1; j++)
+                {
+                    node = new JPS_Node( i, j );
+                    _tileMap.SetTile( new Vector3Int(i,j,0), _roadTile );
+                    NodesArr[i, j] = node;
+                }
+            }
+
+            NodesArr[5, 0].SetObs( true );
+            NodesArr[5, 1].SetObs( true );
+            NodesArr[5, 2].SetObs( true );
+            NodesArr[5, 3].SetObs( true );
+
+            _tileMap.SetTile( new Vector3Int( 5, 0, 0 ), _obsTile );
+            _tileMap.SetTile( new Vector3Int( 5, 1, 0 ), _obsTile );
+            _tileMap.SetTile( new Vector3Int( 5, 2, 0 ), _obsTile );
+            _tileMap.SetTile( new Vector3Int( 5, 3, 0 ), _obsTile );
+        }
+
         /// <summary>
         /// 创建地图
         /// </summary>
@@ -222,6 +255,9 @@ namespace JPS
         //最大行列0~99
         private const int MAX_ROW = 100;
         private const int MAX_COL = 100;
+
+        private const int MAX_ROW_1 = 8;
+        private const int MAX_COL_1 = 5;
 
         public JPS_Node[,] NodesArr = null;
 
