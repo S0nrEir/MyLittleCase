@@ -18,7 +18,6 @@ namespace JPS
             SetObs( false );
             SetJumpPoint( false );
             _dirList = new List<(int x, int y)>();
-            ForceNeiborArr = new Vector2Int[0];
         }
 
         public void Reset ()
@@ -56,14 +55,6 @@ namespace JPS
             _dirList.Add( dir );
         }
 
-        public Vector2Int[] ForceNeiborArr { get; private set; } = null;
-        public void SetForceneibor ( Vector2Int[] arr )
-        {
-            if (arr is null || arr.Length == 0)
-                return;
-
-            ForceNeiborArr = arr;
-        }
 
         public void AddDir ( (int x, int y) dirToAdd )
         {
