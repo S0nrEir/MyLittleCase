@@ -194,6 +194,9 @@ namespace JPS
             _tileMap.SetTile( new Vector3Int( 5, 1, 0 ), _obsTile );
             _tileMap.SetTile( new Vector3Int( 5, 2, 0 ), _obsTile );
             _tileMap.SetTile( new Vector3Int( 5, 3, 0 ), _obsTile );
+
+            MAX_COL = MAX_COL_1;
+            MAX_ROW = MAX_ROW_1;
         }
 
         /// <summary>
@@ -253,8 +256,8 @@ namespace JPS
         //[SerializeField] private Vector2 _inputWay;
 
         //最大行列0~99
-        private const int MAX_ROW = 100;
-        private const int MAX_COL = 100;
+        private int MAX_ROW = 100;
+        private int MAX_COL = 100;
 
         private const int MAX_ROW_1 = 8;
         private const int MAX_COL_1 = 5;

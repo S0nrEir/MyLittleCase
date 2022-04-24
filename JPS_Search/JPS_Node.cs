@@ -18,6 +18,7 @@ namespace JPS
             SetObs( false );
             SetJumpPoint( false );
             _dirList = new List<(int x, int y)>();
+            ForceNeiborArr = new Vector2Int[0];
         }
 
         public void Reset ()
@@ -55,6 +56,15 @@ namespace JPS
             _dirList.Add( dir );
         }
 
+        public Vector2Int[] ForceNeiborArr { get; private set; } = null;
+        public void SetForceneibor ( Vector2Int[] arr )
+        {
+            if (arr is null || arr.Length == 0)
+                return;
+
+            ForceNeiborArr = arr;
+        }
+
         public void AddDir ( (int x, int y) dirToAdd )
         {
             if(_dirList is null)
@@ -66,30 +76,6 @@ namespace JPS
 
             _dirList.Add( dirToAdd );
         }
-
-        //public void SetDir ( List<(int x, int y)> dirToSet )
-        //{
-        //    if (dirToSet is null || dirToSet.Count == 0)
-        //    {
-        //        Debug.Log( $"<color=red>faild to set dir id:{ID},pos:{ToString()}</color>" );
-        //        return;
-        //    }
-
-        //    _dirList = dirToSet;
-        //}
-
-
-        //public void SetDir ( params (int x,int y)[] dirToSet )
-        //{
-        //    if (dirToSet is null || dirToSet.Length == 0)
-        //    {
-        //        Debug.Log( $"<color=red>faild to set dir id:{ID},pos:{ToString()}</color>" );
-        //        return;
-        //    }
-
-        //    _dirList.Clear();
-        //    _dirList.AddRange(dirToSet);
-        //}
 
         //ID池
         public class Node_ID_Pool
