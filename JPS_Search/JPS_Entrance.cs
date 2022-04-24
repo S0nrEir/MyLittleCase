@@ -17,6 +17,7 @@ namespace JPS
         void Start ()
         {
             CreateMap();
+
             //test 1
             //CreateMap_1();
             //_start = Get( 0, 0 );
@@ -39,6 +40,12 @@ namespace JPS
         public void SetJPTile_Test (JPS_Node node)
         {
             _tileMap.SetTile( new Vector3Int( node.X, node.Y ,0), _jpTile );
+        }
+
+        public void SetJPColor_Test ( JPS_Node node ,Color color)
+        {
+            _inputTile.color = color;
+            _tileMap.SetTile( new Vector3Int( node.X, node.Y, 0 ), _inputTile );
         }
 
         /// <summary>

@@ -17,6 +17,7 @@ namespace JPS
             JPS_Node currJP = start;
             currJP.SetJumpPoint( true );
             AddToOpen( currJP );
+            //_pathList.Add( currJP );
             List<(int x, int y)> dirList = null;
             var jpsTempList = new List<JPS_Node>();
             JPS_Node parent = null;
@@ -56,7 +57,13 @@ namespace JPS
                         }
                     }
                     AddToOpen( jpsTempList );
-                    _pathList.AddRange( jpsTempList );
+                    //foreach (var tt in jpsTempList)
+                    //{
+                    //    if (ContainsInCloseDic( tt ))
+                    //        continue;
+
+                    //    tt.Parent = currJP;
+                    //}
                     jpsTempList.Clear();
                 }
             }
@@ -88,13 +95,16 @@ namespace JPS
                             temp.AddDir( neibDir );
                         }
                     }
-                    if(!ContainsInCloseDic(temp))
-                        jpList.Add( temp );
-
-                    if (AddSelf)
+                    if (AddSelf && !ContainsInCloseDic( node ))
                     {
-                        if (!ContainsInCloseDic( node ))
-                            jpList.Add( node );
+                        //_pathList.Add( node );
+                        jpList.Add( node );
+                    }
+
+                    if (!ContainsInCloseDic( temp ))
+                    {
+                        //_pathList.Add( temp );
+                        jpList.Add( temp );
                     }
                     break;
                 }
@@ -396,10 +406,15 @@ namespace JPS
         /// </summary>
         private List<JPS_Node> JPS_Gen ( JPS_Node node )
         {
-            JPS_Node prev = null;
-            if (node.ID == _target.ID)
-                prev = _target.Parent;
-
+            //while (node != null)
+            //{
+            //    JPS_Entrance.I.SetJPColor_Test( node, Color.black );
+            //    node = node.Parent;
+            //}
+            foreach (var t in _pathList)
+            {
+                JPS_Entrance.I.SetJPColor_Test( t, Color.black );
+            }
             return null;
         }
 
