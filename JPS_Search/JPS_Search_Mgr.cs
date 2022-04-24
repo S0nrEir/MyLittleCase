@@ -49,13 +49,14 @@ namespace JPS
                             parent = currJP;
                             while (parent != null && !parent.IsObs)
                             {
-                                Debug.Log( $"<color=purple>parent:{parent},biasDirection{dir}</color>" );
+                                //Debug.Log( $"<color=purple>parent:{parent},biasDirection{dir}</color>" );
                                 GetBiasLineJP( jpsTempList, parent, new Vector2Int( dir.x, dir.y ));
                                 parent = JPS_Entrance.I.Get( parent.X + dir.x, parent.Y + dir.y );
                             }
                         }
                     }
                     AddToOpen( jpsTempList );
+                    _pathList.AddRange( jpsTempList );
                     jpsTempList.Clear();
                 }
             }
@@ -118,7 +119,7 @@ namespace JPS
             //斜向分解成直线，检查自身
             foreach (var straightDir in decompedDir)
             {
-                Debug.Log( $"<color=puple>decomp direction:{straightDir}</color>" );
+                //Debug.Log( $"<color=puple>decomp direction:{straightDir}</color>" );
                 GetStraightLineJP( _biasCacheList, node, straightDir ,true);
             }
 
@@ -163,7 +164,7 @@ namespace JPS
             if (node is null || node.IsObs)
                 return false;
 
-            if (node.ID == _start.ID)
+            if (node.ID == _target.ID)
                 return true;
 
             var scanType = JPS_Tools.GetTileScaneDir( direction );
@@ -293,13 +294,13 @@ namespace JPS
                     Vector2Int.zero
                 };
 
-            Debug.Log( $"<color=orange>node:{node}___direction:{direction}</color>" );
+            //Debug.Log( $"<color=orange>node:{node}___direction:{direction}</color>" );
             var tempNode = JPS_Entrance.I.Get( node.X + forceNeiborDir_1.x, node.Y + forceNeiborDir_1.y );
             if (tempNode != null && !tempNode.IsObs)
             {
                 tempNode = JPS_Entrance.I.Get( tempNode.X + backOffset_1.x, tempNode.Y + backOffset_1.y );
 
-                Debug.Log( string.Format( "<color=while>forceNeiborDir_1:{0}___is tempNode:{1}___neibOffset_1:{2}</color>", ( forceNeiborDir_1.x, forceNeiborDir_1.y), tempNode, (backOffset_1.x,backOffset_1.y) ) );
+                //Debug.Log( string.Format( "<color=while>forceNeiborDir_1:{0}___is tempNode:{1}___neibOffset_1:{2}</color>", ( forceNeiborDir_1.x, forceNeiborDir_1.y), tempNode, (backOffset_1.x,backOffset_1.y) ) );
 
                 hasForceNeibor |= tempNode != null && tempNode.IsObs;
                 if (tempNode != null && tempNode.IsObs)
@@ -314,7 +315,7 @@ namespace JPS
             {
                 tempNode = JPS_Entrance.I.Get( tempNode.X + backOffset_2.x, tempNode.Y + backOffset_2.y );
 
-                Debug.Log( string.Format( "<color=while>forceNeiborDir_1:{0}___is tempNode:{1}___neibOffset_1:{2}</color>", (forceNeiborDir_1.x, forceNeiborDir_1.y), tempNode, (backOffset_1.x, backOffset_1.y) ) );
+                //Debug.Log( string.Format( "<color=while>forceNeiborDir_1:{0}___is tempNode:{1}___neibOffset_1:{2}</color>", (forceNeiborDir_1.x, forceNeiborDir_1.y), tempNode, (backOffset_1.x, backOffset_1.y) ) );
 
                 hasForceNeibor |= tempNode != null && tempNode.IsObs;
                 if (tempNode != null && tempNode.IsObs)
@@ -454,20 +455,12 @@ namespace JPS
                     TILE_DIRECTION.DIRECTION_DOWN,
                     TILE_DIRECTION.DIRECTION_RIGHT,
                     TILE_DIRECTION.DIRECTION_LEFT,
-                    //斜向
+                    //bias
                     TILE_DIRECTION.DIRECTION_RIGHT_UP,
                     TILE_DIRECTION.DIRECTION_RIGHT_DOWN,
                     TILE_DIRECTION.DIRECTION_LEFT_UP,
                     TILE_DIRECTION.DIRECTION_LEFT_DOWN,
                 };
-
-            var s = $"<color=blUe>node__{node},dir:";
-            foreach (var dir in node._dirList)
-            {
-                s += $"{dir.x},{dir.y} ; ";
-            }
-            s += "</color>";
-            Debug.Log( s );
             return node._dirList;
         }
 

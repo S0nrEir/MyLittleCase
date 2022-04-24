@@ -16,12 +16,11 @@ namespace JPS
 
         void Start ()
         {
-            //CreateMap();
-            
-            
-            CreateMap_1();
-            _start = Get( 0, 0 );
-            _target = Get( 7, 0 );
+            CreateMap();
+            //test 1
+            //CreateMap_1();
+            //_start = Get( 0, 0 );
+            //_target = Get( 7, 0 );
 
             _drawedPathSet = new HashSet<JPS_Node>();
 
@@ -85,8 +84,8 @@ namespace JPS
                 _tileMap.SetTile( new Vector3Int( itor.Current.X, itor.Current.Y, 0 ), _roadTile );
 
             _drawedPathSet.Clear();
-            Debug.Log($"<color=green>start:{_start}</color>");
-            Debug.Log( $"<color=green>target:{_target}</color>" );
+            //Debug.Log($"<color=green>start:{_start}</color>");
+            //Debug.Log( $"<color=green>target:{_target}</color>" );
 
             //var pathList = _pathFindingType == PathFindingTypeEnum.AStar ? JPS_Search_Mgr.I.AStar( _start, _target ) : JPS_Search_Mgr.I.JPS( _start, _target );
             var pathList = _pathFindingType == PathFindingTypeEnum.AStar ? JPS_Search_Mgr.I.AStar( _start, _target ) : JPS_Search_Mgr.I.JPS_New_New( _start,_target);
