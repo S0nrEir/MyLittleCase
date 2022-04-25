@@ -9,6 +9,140 @@ namespace JPS
     /// </summary>
     public class JPS_Search_Mgr
     {
+        private JPS_Node[] GetBiasLineJP ( JPS_Node node, Vector2Int biasDirection )
+        {
+            //分解方向
+            if (JPS_Tools.GetTileScaneDir( biasDirection ) != TileScanDirection.Bias)
+                return null;
+
+            var decompedDir = DecompBiasDirection( biasDirection );
+            if (decompedDir is null && decompedDir.Length == 0)
+                return null;
+
+            _biasCacheList.Clear();
+            JPS_Node tempNode = null;
+            var idx = 0;
+            JPS_Node[] biasCacheArr = null;
+            foreach (var straightDir in decompedDir)
+            {
+                tempNode = GetStraightLineJP( node, straightDir, true );
+                if (tempNode != null)
+                {
+                    if (biasCacheArr is null)
+                        biasCacheArr = new JPS_Node[2];
+
+                    biasCacheArr[idx++] = tempNode;
+                }
+
+            }
+            return biasCacheArr;
+            //jpList.AddRange( _biasCacheList );
+        }
+
+        private JPS_Node GetStraightLineJP ( JPS_Node node, Vector2Int direction, bool AddSelf )
+        {
+            if (direction == Vector2Int.zero)
+                return null;
+
+            var temp = JPS_Entrance.I.Get( node.X + direction.x, node.Y + direction.y );
+            Vector2Int[] forceNeibArr;
+            while (temp != null && !temp.IsObs)
+            {
+                if (HasForceNeiborPoint( temp, direction, out forceNeibArr ))
+                {
+                    if (forceNeibArr != null && forceNeibArr.Length != 0)
+                    {
+                        foreach (var neibDir in forceNeibArr)
+                        {
+                            if (neibDir == Vector2Int.zero)
+                                continue;
+
+                            temp.AddDir( neibDir );
+                        }
+                    }
+                    return temp;
+                }
+                else
+                {
+                    temp = JPS_Entrance.I.Get( temp.X + direction.x, temp.Y + direction.y );
+                }
+            }
+            return null;
+        }
+
+        public List<JPS_Node> JPS ( JPS_Node start, JPS_Node target )
+        {
+            Reset();
+            _start = start;
+            _target = target;
+            JPS_Node currJP = start;
+            AddToOpen( currJP );
+            List<(int x, int y)> dirList = null;
+            JPS_Node parent = null;
+            JPS_Node curr = null;
+            while (_openSet.Count != 0)
+            {
+                currJP = GetClosetInOpen( start, target );
+                JPS_Entrance.I.SetJPTile_Test( currJP );
+                //for test
+                if (currJP.ID != start.ID && currJP.ID != target.ID)
+                    JPS_Entrance.I.SetJPTile_Test( currJP );
+
+                if (currJP.ID == target.ID)
+                    return JPS_Gen( currJP );
+                else
+                {
+                    RemoveFromOpen( currJP );
+                    AddToCloseDic( currJP );
+                    dirList = DirList( currJP );
+                    foreach (var dir in dirList)
+                    {
+                        //直线
+                        if (JPS_Tools.GetTileScaneDir( dir ) == TileScanDirection.Straight)
+                        {
+                            curr = GetStraightLineJP ( currJP, new Vector2Int( dir.x, dir.y ), false );
+                            if (curr != null && !ContainsInCloseDic( curr ))
+                            {
+                                curr.Parent = currJP;
+                                if (curr.ID == target.ID)
+                                    return JPS_Gen( curr );
+
+                                AddToOpen( curr );
+                            }
+                        }
+                        //斜向
+                        else
+                        {
+                            JPS_Node[] tempNode = null;
+                            while (parent != null && !parent.IsObs)
+                            {
+                                tempNode = GetBiasLineJP( parent, new Vector2Int( dir.x, dir.y ) );
+                                if (tempNode != null && tempNode.Length != 0)
+                                {
+                                    foreach (var node in tempNode)
+                                    {
+                                        if (node != null && !ContainsInCloseDic( node ))
+                                        {
+                                            node.Parent = parent;
+                                            AddToOpen( node );
+                                            if (node.ID == target.ID)
+                                                return JPS_Gen( node );
+
+                                            parent.Parent = currJP;
+                                            AddToOpen( parent );
+                                        }
+                                    }
+                                }
+                                parent = JPS_Entrance.I.Get( parent.X + dir.x, parent.Y + dir.y );
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        #region JPS_New_New
         public List<JPS_Node> JPS_New_New ( JPS_Node start, JPS_Node target )
         {
             Reset();
@@ -69,7 +203,7 @@ namespace JPS
             }
             return null;
         }
-
+        #endregion
 
         private void GetStraightLineJP (List<JPS_Node> jpList,JPS_Node node,Vector2Int direction,bool AddSelf)
         {
@@ -406,15 +540,15 @@ namespace JPS
         /// </summary>
         private List<JPS_Node> JPS_Gen ( JPS_Node node )
         {
-            //while (node != null)
-            //{
-            //    JPS_Entrance.I.SetJPColor_Test( node, Color.black );
-            //    node = node.Parent;
-            //}
-            foreach (var t in _pathList)
+            while (node != null)
             {
-                JPS_Entrance.I.SetJPColor_Test( t, Color.black );
+                JPS_Entrance.I.SetJPColor_Test( node, Color.black );
+                node = node.Parent;
             }
+            //foreach (var t in _pathList)
+            //{
+            //    JPS_Entrance.I.SetJPColor_Test( t, Color.black );
+            //}
             return null;
         }
 
