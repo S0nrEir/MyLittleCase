@@ -4,23 +4,86 @@ using UnityEngine;
 
 namespace JPS
 {
-
     /// <summary>
     /// JPS寻路管理器
     /// </summary>
     public class JPS_Search_Mgr
     {
-        public List<JPS_Node> JPS_New_New ( JPS_Node start, JPS_Node target )
+        private JPS_Node[] GetBiasLineJP ( JPS_Node node, Vector2Int biasDirection )
+        {
+            //分解方向
+            if (JPS_Tools.GetTileScaneDir( biasDirection ) != TileScanDirection.Bias)
+                return null;
+
+            var decompedDir = DecompBiasDirection( biasDirection );
+            if (decompedDir is null && decompedDir.Length == 0)
+                return null;
+
+            _biasCacheList.Clear();
+            JPS_Node tempNode = null;
+            var idx = 0;
+            JPS_Node[] biasCacheArr = null;
+            foreach (var straightDir in decompedDir)
+            {
+                tempNode = GetStraightLineJP( node, straightDir, true );
+                if (tempNode != null)
+                {
+                    if (biasCacheArr is null)
+                        biasCacheArr = new JPS_Node[2];
+
+                    biasCacheArr[idx++] = tempNode;
+                }
+
+            }
+            return biasCacheArr;
+            //jpList.AddRange( _biasCacheList );
+        }
+
+        private JPS_Node GetStraightLineJP ( JPS_Node node, Vector2Int direction, bool AddSelf )
+        {
+            if (direction == Vector2Int.zero)
+                return null;
+
+            var temp = JPS_Entrance.I.Get( node.X + direction.x, node.Y + direction.y );
+            Vector2Int[] forceNeibArr;
+            while (temp != null && !temp.IsObs)
+            {
+                if (HasForceNeiborPoint( temp, direction, out forceNeibArr ))
+                {
+                    if (forceNeibArr != null && forceNeibArr.Length != 0)
+                    {
+                        foreach (var neibDir in forceNeibArr)
+                        {
+                            if (neibDir == Vector2Int.zero)
+                                continue;
+
+                            temp.AddDir( neibDir );
+                        }
+                    }
+                    return temp;
+                }
+                else
+                {
+                    temp = JPS_Entrance.I.Get( temp.X + direction.x, temp.Y + direction.y );
+                }
+            }
+            return null;
+        }
+
+        public List<JPS_Node> JPS ( JPS_Node start, JPS_Node target )
         {
             Reset();
+            _start = start;
+            _target = target;
             JPS_Node currJP = start;
-            currJP.SetJumpPoint( true );
             AddToOpen( currJP );
             List<(int x, int y)> dirList = null;
-            var jpsTempList = new List<JPS_Node>();
+            JPS_Node parent = null;
+            JPS_Node curr = null;
             while (_openSet.Count != 0)
             {
                 currJP = GetClosetInOpen( start, target );
+                JPS_Entrance.I.SetJPTile_Test( currJP );
                 //for test
                 if (currJP.ID != start.ID && currJP.ID != target.ID)
                     JPS_Entrance.I.SetJPTile_Test( currJP );
@@ -31,30 +94,56 @@ namespace JPS
                 {
                     RemoveFromOpen( currJP );
                     AddToCloseDic( currJP );
-
                     dirList = DirList( currJP );
                     foreach (var dir in dirList)
                     {
                         //直线
                         if (JPS_Tools.GetTileScaneDir( dir ) == TileScanDirection.Straight)
                         {
+                            curr = GetStraightLineJP ( currJP, new Vector2Int( dir.x, dir.y ), false );
+                            if (curr != null && !ContainsInCloseDic( curr ))
+                            {
+                                curr.Parent = currJP;
+                                if (curr.ID == target.ID)
+                                    return JPS_Gen( curr );
+
+                                AddToOpen( curr );
+                            }
                         }
                         //斜向
                         else
                         {
+                            JPS_Node[] tempNode = null;
+                            while (parent != null && !parent.IsObs)
+                            {
+                                tempNode = GetBiasLineJP( parent, new Vector2Int( dir.x, dir.y ) );
+                                if (tempNode != null && tempNode.Length != 0)
+                                {
+                                    foreach (var node in tempNode)
+                                    {
+                                        if (node != null && !ContainsInCloseDic( node ))
+                                        {
+                                            node.Parent = parent;
+                                            AddToOpen( node );
+                                            if (node.ID == target.ID)
+                                                return JPS_Gen( node );
+
+                                            parent.Parent = currJP;
+                                            AddToOpen( parent );
+                                        }
+                                    }
+                                }
+                                parent = JPS_Entrance.I.Get( parent.X + dir.x, parent.Y + dir.y );
+                            }
                         }
                     }
-                    AddToOpen( jpsTempList );
-                    jpsTempList.Clear();
                 }
             }
             return null;
         }
 
-
-
-
-        public List<JPS_Node> JPS_New ( JPS_Node start, JPS_Node target )
+        #region JPS_New_New
+        public List<JPS_Node> JPS_New_New ( JPS_Node start, JPS_Node target )
         {
             Reset();
             _start = start;
@@ -62,16 +151,14 @@ namespace JPS
             JPS_Node currJP = start;
             currJP.SetJumpPoint( true );
             AddToOpen( currJP );
+            //_pathList.Add( currJP );
             List<(int x, int y)> dirList = null;
             var jpsTempList = new List<JPS_Node>();
-            //斜向探测的坐标点
             JPS_Node parent = null;
-            //直线探测的坐标点
-            JPS_Node current = null;
             while (_openSet.Count != 0)
             {
                 currJP = GetClosetInOpen( start, target );
-                Debug.Log( $"<color=purple>currJP:{currJP}</color>" );
+                JPS_Entrance.I.SetJPTile_Test( currJP );
                 //for test
                 if (currJP.ID != start.ID && currJP.ID != target.ID)
                     JPS_Entrance.I.SetJPTile_Test( currJP );
@@ -82,98 +169,308 @@ namespace JPS
                 {
                     RemoveFromOpen( currJP );
                     AddToCloseDic( currJP );
-
                     dirList = DirList( currJP );
                     foreach (var dir in dirList)
                     {
                         //直线
                         if (JPS_Tools.GetTileScaneDir( dir ) == TileScanDirection.Straight)
                         {
-                            JPS_Tools.GetStraightLineJps_New( currJP, target, new Vector2Int(dir.x,dir.y), jpsTempList );
+                            //直线方向遇到邻接障碍物，该点作为跳点，自身不作为跳点
+                            GetStraightLineJP( jpsTempList, currJP, new Vector2Int( dir.x, dir.y ),false );
                         }
                         //斜向
                         else
                         {
-                            parent = JPS_Entrance.I.Get( currJP.X, currJP.Y, true );
-                            //斜向探测，遇到边界或障碍物终止
+                            parent = currJP;
                             while (parent != null && !parent.IsObs)
                             {
-                                if (parent.ID == target.ID)
-                                    return Gen( parent );
-
-                                var tempDir = new Vector2Int( dir.x, dir.y );
-                                JPS_Tools.GetBiasStraightLineJPs( parent, tempDir, target, jpsTempList );
+                                //Debug.Log( $"<color=purple>parent:{parent},biasDirection{dir}</color>" );
+                                GetBiasLineJP( jpsTempList, parent, new Vector2Int( dir.x, dir.y ));
                                 parent = JPS_Entrance.I.Get( parent.X + dir.x, parent.Y + dir.y );
                             }
                         }
                     }
                     AddToOpen( jpsTempList );
-                    //foreach (var jp in jpsTempList)
+                    //foreach (var tt in jpsTempList)
                     //{
-                    //    if (jp is null || jp.IsObs || ContainsInCloseDic( jp ))
+                    //    if (ContainsInCloseDic( tt ))
                     //        continue;
 
-                    //    jp.Parent = currJP;
+                    //    tt.Parent = currJP;
                     //}
-
                     jpsTempList.Clear();
                 }
-
-                #region nouse
-                //currJP = GetClosetInOpen( start, target );
-                //Debug.Log( $"<color=purple>currJP:{currJP}</color>" );
-                ////for test
-                //if (currJP.ID != start.ID && currJP.ID != target.ID)
-                //    JPS_Entrance.I.SetJPTile_Test( currJP );
-
-                //if (currJP.ID == target.ID)
-                //    return Gen( currJP );
-                //else
-                //{
-                //    RemoveFromOpen( currJP );
-                //    AddToCloseDic( currJP );
-
-                //    dirList = DirList( currJP );
-                //    //parent = currJP;
-                //    foreach (var dir in dirList)
-                //    {
-                //        //直线
-                //        if (JPS_Tools.GetTileScaneDir( dir ) == TileScanDirection.Straight)
-                //        {
-                //            current = currJP;
-                //            JPS_Tools.GetStraightLineJPs( current, dir, jpsTempList, target );
-                //        }
-                //        //斜向
-                //        else
-                //        {
-                //            parent = JPS_Entrance.I.Get( currJP.X, currJP.Y, true );
-                //            //斜向探测，遇到边界或障碍物终止
-                //            while (parent != null && !parent.IsObs)
-                //            {
-                //                if (parent.ID == target.ID)
-                //                    return Gen( parent );
-
-                //                var tempDir = new Vector2Int( dir.x, dir.y );
-                //                Debug.Log( $"<color=red>parent={parent}</color>" );
-                //                JPS_Tools.GetBiasStraightLineJPs( parent, tempDir, target, jpsTempList );
-                //                parent = JPS_Entrance.I.Get( parent.X + dir.x, parent.Y + dir.y );
-                //            }
-                //        }
-                //    }
-                //    AddToOpen( jpsTempList );
-                //    foreach (var jp in jpsTempList)
-                //    {
-                //        if (jp is null || jp.IsObs || ContainsInCloseDic( jp ))
-                //            continue;
-
-                //        jp.Parent = currJP;
-                //    }
-
-                //    jpsTempList.Clear();
-                //}
-                #endregion
             }
             return null;
+        }
+        #endregion
+
+        private void GetStraightLineJP (List<JPS_Node> jpList,JPS_Node node,Vector2Int direction,bool AddSelf)
+        {
+            if (jpList is null)
+                jpList = new List<JPS_Node>();
+
+            if (direction == Vector2Int.zero)
+                return;
+
+            var temp = JPS_Entrance.I.Get( node.X + direction.x, node.Y + direction.y );
+            Vector2Int[] forceNeibArr;
+            while (temp != null && !temp.IsObs)
+            {
+                if (HasForceNeiborPoint( temp, direction, out forceNeibArr ))
+                {
+                    if (forceNeibArr != null && forceNeibArr.Length != 0)
+                    {
+                        foreach (var neibDir in forceNeibArr)
+                        {
+                            if (neibDir == Vector2Int.zero)
+                                continue;
+
+                            temp.AddDir( neibDir );
+                        }
+                    }
+                    if (AddSelf && !ContainsInCloseDic( node ))
+                    {
+                        //_pathList.Add( node );
+                        jpList.Add( node );
+                    }
+
+                    if (!ContainsInCloseDic( temp ))
+                    {
+                        //_pathList.Add( temp );
+                        jpList.Add( temp );
+                    }
+                    break;
+                }
+                else
+                {
+                    temp = JPS_Entrance.I.Get( temp.X + direction.x, temp.Y + direction.y );
+                }
+            }
+        }
+
+        private void GetBiasLineJP ( List<JPS_Node> jpList, JPS_Node node, Vector2Int biasDirection )
+        {
+            //分解方向
+            if (JPS_Tools.GetTileScaneDir( biasDirection ) != TileScanDirection.Bias)
+                return;
+
+            if (jpList is null)
+                jpList = new List<JPS_Node>();
+
+            var decompedDir = DecompBiasDirection( biasDirection );
+            if (decompedDir is null && decompedDir.Length == 0)
+                return;
+
+            _biasCacheList.Clear();
+            foreach (var straightDir in decompedDir)
+            {
+                //Debug.Log( $"<color=puple>decomp direction:{straightDir}</color>" );
+                GetStraightLineJP( _biasCacheList, node, straightDir ,true);
+            }
+            jpList.AddRange( _biasCacheList );
+        }
+
+        private List<JPS_Node> _biasCacheList = null;
+
+        /// <summary>
+        /// 分解一个斜向
+        /// </summary>
+        private Vector2Int[] DecompBiasDirection (Vector2Int biasDirection)
+        {
+            if (biasDirection == Vector2Int.zero)
+                return new Vector2Int[0];
+
+            //右朝向
+            if (biasDirection.x > 0)
+            {
+                return new Vector2Int[2]
+                    {
+                        new Vector2Int(1,0),
+                        new Vector2Int(0,biasDirection.y > 0 ? 1:-1),
+                    };
+            }
+            else
+            {
+                return new Vector2Int[2]
+                   {
+                        new Vector2Int(-1,0),
+                        new Vector2Int(0,biasDirection.y > 0 ? 1:-1),
+                    };
+            }
+        }
+
+        /// <summary>
+        /// 当前node是否有强制临界点，是返回true，并且返回强制邻接点方向
+        /// </summary>
+        private bool HasForceNeiborPoint (JPS_Node node ,Vector2Int direction,out Vector2Int[] forceNeibDir)
+        {
+            forceNeibDir = null;
+            if (node is null || node.IsObs)
+                return false;
+
+            if (node.ID == _target.ID)
+                return true;
+
+            var scanType = JPS_Tools.GetTileScaneDir( direction );
+            if (scanType == TileScanDirection.None)
+                return false;
+
+            //强迫邻接点的探测方向
+            Vector2Int forceNeiborDir_1 = Vector2Int.zero;
+            Vector2Int forceNeiborDir_2 = Vector2Int.zero;
+            Vector2Int backOffset_1 = Vector2Int.zero;
+            Vector2Int backOffset_2 = Vector2Int.zero;
+
+            //#todo优化方向处理
+            if (scanType == TileScanDirection.Straight)
+            {
+                //horizontal
+                if (direction.y == 0)
+                {
+                    if (direction.x > 0)
+                    {
+                        forceNeiborDir_1.x = 1;
+                        forceNeiborDir_1.y = 1;
+                        backOffset_1.x = -1;
+
+                        forceNeiborDir_2.x = 1;
+                        forceNeiborDir_2.y = -1;
+                        backOffset_2.x = -1;
+                    }
+                    else
+                    {
+                        forceNeiborDir_1.x = -1;
+                        forceNeiborDir_1.y = 1;
+                        backOffset_1.x = 1;
+
+                        forceNeiborDir_2.x = -1;
+                        forceNeiborDir_2.y = -1;
+                        backOffset_1.x = 1;
+                    }
+                }
+                //vertical
+                else
+                {
+                    if (direction.y > 0)
+                    {
+                        forceNeiborDir_1.y = 1;
+                        forceNeiborDir_1.x = 1;
+                        backOffset_1.y = -1;
+
+                        forceNeiborDir_2.x = -1;
+                        forceNeiborDir_2.y = 1;
+                        backOffset_1.y = -1;
+                    }
+                    else
+                    {
+                        forceNeiborDir_1.y = 1;
+                        forceNeiborDir_1.x = -1;
+                        backOffset_1.y = 1;
+
+                        forceNeiborDir_2.x = -1;
+                        forceNeiborDir_2.y = -1;
+                        backOffset_1.y = 1;
+                    }
+                }
+            }
+            //bias，现在不用
+            else
+            {
+                //右朝向
+                if (direction.x > 0)
+                {
+                    //右上
+                    if (direction.y > 0)
+                    {
+                        forceNeiborDir_1.x = -1;
+                        forceNeiborDir_1.y = 1;
+                        backOffset_1.y = -1;
+
+                        forceNeiborDir_2.x = 1;
+                        forceNeiborDir_2.y = -1;
+                        backOffset_1.x = -1;
+                    }
+                    //右下
+                    else
+                    {
+                        forceNeiborDir_1.x = 1;
+                        forceNeiborDir_1.y = 1;
+                        backOffset_1.x = -1;
+
+                        forceNeiborDir_2.x = -1;
+                        forceNeiborDir_2.y = -1;
+                        backOffset_1.y = 1;
+                    }
+                }
+                //左朝向
+                else
+                {
+                    //左上
+                    if (direction.y > 0)
+                    {
+                        forceNeiborDir_1.x = 1;
+                        forceNeiborDir_1.y = 1;
+                        backOffset_1.y = -1;
+
+                        forceNeiborDir_2.x = -1;
+                        forceNeiborDir_2.y = -1;
+                        backOffset_1.x = 1;
+                    }
+                    //左下
+                    else
+                    {
+                        forceNeiborDir_1.x = -1;
+                        forceNeiborDir_1.y = 1;
+                        backOffset_1.x = 1;
+
+                        forceNeiborDir_2.x = 1;
+                        forceNeiborDir_2.y = -1;
+                        backOffset_1.y = 1;
+                    }
+                }
+            }
+
+            //forceNeib
+            bool hasForceNeibor = false;
+            forceNeibDir = new Vector2Int[2]
+                {
+                    Vector2Int.zero,
+                    Vector2Int.zero
+                };
+
+            //Debug.Log( $"<color=orange>node:{node}___direction:{direction}</color>" );
+            var tempNode = JPS_Entrance.I.Get( node.X + forceNeiborDir_1.x, node.Y + forceNeiborDir_1.y );
+            if (tempNode != null && !tempNode.IsObs)
+            {
+                tempNode = JPS_Entrance.I.Get( tempNode.X + backOffset_1.x, tempNode.Y + backOffset_1.y );
+
+                //Debug.Log( string.Format( "<color=while>forceNeiborDir_1:{0}___is tempNode:{1}___neibOffset_1:{2}</color>", ( forceNeiborDir_1.x, forceNeiborDir_1.y), tempNode, (backOffset_1.x,backOffset_1.y) ) );
+
+                hasForceNeibor |= tempNode != null && tempNode.IsObs;
+                if (tempNode != null && tempNode.IsObs)
+                {
+                    forceNeibDir[0] = new Vector2Int( forceNeiborDir_1.x, forceNeiborDir_1.y );
+                    hasForceNeibor = true;
+                }
+            }
+
+            tempNode = JPS_Entrance.I.Get( node.X + forceNeiborDir_2.x, node.Y + forceNeiborDir_2.y );
+            if (tempNode != null && !tempNode.IsObs)
+            {
+                tempNode = JPS_Entrance.I.Get( tempNode.X + backOffset_2.x, tempNode.Y + backOffset_2.y );
+
+                //Debug.Log( string.Format( "<color=while>forceNeiborDir_1:{0}___is tempNode:{1}___neibOffset_1:{2}</color>", (forceNeiborDir_1.x, forceNeiborDir_1.y), tempNode, (backOffset_1.x, backOffset_1.y) ) );
+
+                hasForceNeibor |= tempNode != null && tempNode.IsObs;
+                if (tempNode != null && tempNode.IsObs)
+                {
+                    forceNeibDir[1] = new Vector2Int( forceNeiborDir_2.x, forceNeiborDir_2.y );
+                    hasForceNeibor = true;
+                }
+            }
+
+            return hasForceNeibor;
         }
 
         /// <summary>
@@ -188,20 +485,12 @@ namespace JPS
                     TILE_DIRECTION.DIRECTION_DOWN,
                     TILE_DIRECTION.DIRECTION_RIGHT,
                     TILE_DIRECTION.DIRECTION_LEFT,
-                    //斜向
+                    //bias
                     TILE_DIRECTION.DIRECTION_RIGHT_UP,
                     TILE_DIRECTION.DIRECTION_RIGHT_DOWN,
                     TILE_DIRECTION.DIRECTION_LEFT_UP,
                     TILE_DIRECTION.DIRECTION_LEFT_DOWN,
                 };
-
-            var s = $"<color=blUe>node__{node},dir:";
-            foreach (var dir in node._dirList)
-            {
-                s += $"{dir.x},{dir.y} ; ";
-            }
-            s += "</color>";
-            Debug.Log( s );
             return node._dirList;
         }
 
@@ -251,16 +540,16 @@ namespace JPS
         /// </summary>
         private List<JPS_Node> JPS_Gen ( JPS_Node node )
         {
-            //for test
-            return new List<JPS_Node>(0);
-
-            var list = new List<JPS_Node>();
             while (node != null)
             {
-                list.Add( node );
+                JPS_Entrance.I.SetJPColor_Test( node, Color.black );
                 node = node.Parent;
             }
-            return list;
+            //foreach (var t in _pathList)
+            //{
+            //    JPS_Entrance.I.SetJPColor_Test( t, Color.black );
+            //}
+            return null;
         }
 
 
@@ -360,8 +649,8 @@ namespace JPS
             if (_openSet is null)
                 _openSet = new HashSet<JPS_Node>();
 
-            if (_jpsList is null)
-                _jpsList = new List<JPS_Node>();
+            if (_biasCacheList is null)
+                _biasCacheList = new List<JPS_Node>();
         }
 
         private void Reset ()
@@ -370,14 +659,16 @@ namespace JPS
             _openList.Clear();
             _pathList.Clear();
             _openSet.Clear();
-            _jpsList.Clear();
+            _biasCacheList.Clear();
+
+            _start = null;
+            _target = null;
         }
 
         private Dictionary<int, JPS_Node> _closeDic = null;
         private List<JPS_Node> _openList = null;//no use
         private HashSet<JPS_Node> _openSet = null;
         private List<JPS_Node> _pathList = null;
-        private List<JPS_Node> _jpsList = null;//跳点列表
 
         private static JPS_Search_Mgr _i = null;
         private JPS_Node _start = null;

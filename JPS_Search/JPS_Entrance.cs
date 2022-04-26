@@ -16,12 +16,12 @@ namespace JPS
 
         void Start ()
         {
-            //CreateMap();
-            
-            
-            CreateMap_1();
-            _start = Get( 0, 0 );
-            _target = Get( 7, 0 );
+            CreateMap();
+
+            //test 1
+            //CreateMap_1();
+            //_start = Get( 0, 0 );
+            //_target = Get( 7, 0 );
 
             _drawedPathSet = new HashSet<JPS_Node>();
 
@@ -40,6 +40,12 @@ namespace JPS
         public void SetJPTile_Test (JPS_Node node)
         {
             _tileMap.SetTile( new Vector3Int( node.X, node.Y ,0), _jpTile );
+        }
+
+        public void SetJPColor_Test ( JPS_Node node ,Color color)
+        {
+            _inputTile.color = color;
+            _tileMap.SetTile( new Vector3Int( node.X, node.Y, 0 ), _inputTile );
         }
 
         /// <summary>
@@ -85,8 +91,8 @@ namespace JPS
                 _tileMap.SetTile( new Vector3Int( itor.Current.X, itor.Current.Y, 0 ), _roadTile );
 
             _drawedPathSet.Clear();
-            Debug.Log($"<color=green>start:{_start}</color>");
-            Debug.Log( $"<color=green>target:{_target}</color>" );
+            //Debug.Log($"<color=green>start:{_start}</color>");
+            //Debug.Log( $"<color=green>target:{_target}</color>" );
 
             //var pathList = _pathFindingType == PathFindingTypeEnum.AStar ? JPS_Search_Mgr.I.AStar( _start, _target ) : JPS_Search_Mgr.I.JPS( _start, _target );
             var pathList = _pathFindingType == PathFindingTypeEnum.AStar ? JPS_Search_Mgr.I.AStar( _start, _target ) : JPS_Search_Mgr.I.JPS_New_New( _start,_target);
@@ -194,6 +200,9 @@ namespace JPS
             _tileMap.SetTile( new Vector3Int( 5, 1, 0 ), _obsTile );
             _tileMap.SetTile( new Vector3Int( 5, 2, 0 ), _obsTile );
             _tileMap.SetTile( new Vector3Int( 5, 3, 0 ), _obsTile );
+
+            MAX_COL = MAX_COL_1;
+            MAX_ROW = MAX_ROW_1;
         }
 
         /// <summary>
@@ -253,8 +262,8 @@ namespace JPS
         //[SerializeField] private Vector2 _inputWay;
 
         //最大行列0~99
-        private const int MAX_ROW = 100;
-        private const int MAX_COL = 100;
+        private int MAX_ROW = 100;
+        private int MAX_COL = 100;
 
         private const int MAX_ROW_1 = 8;
         private const int MAX_COL_1 = 5;
