@@ -3,7 +3,9 @@ using UnityEngine;
 
 public class MeshCutter : MonoBehaviour
 {
-
+    /// <summary>
+    /// 初始化
+    /// </summary>
     private void Start()
     {
         go_to_cut = null;
@@ -21,7 +23,14 @@ public class MeshCutter : MonoBehaviour
 
     private void Update()
     {
-        //生成方块
+        InputListening();
+    }
+
+    /// <summary>
+    /// 输入监听
+    /// </summary>
+    private void InputListening()
+    {
         if ( Input.GetKeyDown( KeyCode.R ) )
         {
             if ( go_to_cut != null )
@@ -30,7 +39,7 @@ public class MeshCutter : MonoBehaviour
                 go_to_cut = null;
             }
 
-            go_to_cut = GameObject.Instantiate( go_template, null );
+            go_to_cut = GameObject.Instantiate( go_to_cut );
             go_to_cut.transform.position = go_template.transform.position;
             go_to_cut.transform.rotation = go_template.transform.rotation;
             go_to_cut.transform.localScale = go_template.transform.localScale;
@@ -56,13 +65,19 @@ public class MeshCutter : MonoBehaviour
                 GenRay( start_view_pos, end_view_pos );
                 GetCutDirection( end_ray );
                 DrawViewSpaceLine( start_ray, end_ray );
-                GetCutterDirection( start_view_pos, end_view_pos, cut_direction );
+                _plane_normal = GetCutterDirection( start_view_pos, end_view_pos, cut_direction );
+                Cut();
             }
         }
     }
 
+    /// <summary>
+    /// 切割
+    /// </summary>
     private void Cut()
     {
+        ResetAll();
+        Vector3 end_point_ws;
         if ( go_to_cut == null )
         {
             Debug.LogError( "go_to_cut is null!" );
@@ -79,17 +94,78 @@ public class MeshCutter : MonoBehaviour
         //取得模型网格
         var mesh = filter.mesh;
         //遍历所有顶点，将顶点变换到世界空间or将切割方向变换到模型空间
+        //先变换滑动的结束位置，视口坐标变换到世界空间，然后转到模型空间，跟所有顶点做计算
+        end_point_ws = _cam.ViewportToWorldPoint( end_view_pos );
+        //end_point_os = go_to_cut.transform.worldToLocalMatrix * end_point_os;
+
+        var triangles = mesh.triangles;
+        var tLen = triangles.Length;
+        //顶点的世界空间位置索引
+        Vector3 vertex_ws_pos;
+        Vector3 vertex;
+        //这里的思路其实是遍历所有的模型顶点，将所有顶点区分为左边和右边（如果有切割面的话）
+        //然后计算切割面和物体的交点以生成新的面
+        for ( var i = 0; i < tLen; i++ )
+        {
+            vertex = mesh.vertices[triangles[i]];
+            vertex_ws_pos = OS2WS( go_to_cut.transform, vertex );
+            if ( IsLeft( vertex_ws_pos ) )
+            {
+                //#todo_UV
+                _positiveMeshList.Add( vertex );
+                _positiveVertIndexList.Add( triangles[i] );
+            }
+            else
+            {
+                _negativeMeshList.Add( vertex );
+                _negativeVertIndexList.Add( triangles[i] );
+            }
+        }
+
+
+    }
+
+    private bool IsLeft( Vector3 vertex2EndDir )
+    {
+        return Vector3.Dot( _plane_normal, vertex2EndDir ) > 0f;
+    }
+
+    private void ResetAll()
+    {
+        _positiveMeshList.Clear();
+        _negativeMeshList.Clear();
+
+        _positiveUVList.Clear();
+        _negativeUVList.Clear();
+
+        _positiveVertIndexList.Clear();
+        _negativeVertIndexList.Clear();
+
+        _new_mesh.Clear();
+        if ( _new_go != null )
+        {
+            GameObject.Destroy( _new_go );
+            _new_go = null;
+        }
 
     }
 
     /// <summary>
-    /// 根据起点和重点确定切割方向，思路是让两点形成线，切割方向为终点的方向
+    /// 模型空间转世界空间
+    /// </summary>
+    private Vector3 OS2WS( Transform tran, Vector3 p )
+    {
+        return tran.localToWorldMatrix * p;
+    }
+
+    /// <summary>
+    /// 根据起点和重点确定切割方向，思路是让两点形成线，切割方向为终点的方向，返回世界空间坐标
     /// </summary>
     private Vector3 GetCutterDirection( Vector3 start, Vector3 end, Vector3 bioNormal )
     {
         var plane_tangent = ( start - end ).normalized;
         var plane_normal = Vector3.Cross( plane_tangent, bioNormal );
-        return plane_normal.normalized;
+        return _cam.ViewportToWorldPoint( plane_normal ).normalized;
     }
 
     /// <summary>
@@ -124,11 +200,29 @@ public class MeshCutter : MonoBehaviour
 
     }
 
+    private GameObject _new_go = null;
+    private Mesh _new_mesh = new Mesh();
+
+    //顶点位置
+    private List<Vector3> _positiveMeshList = new List<Vector3>( 1 << 1 );
+    private List<Vector3> _negativeMeshList = new List<Vector3>( 1 << 1 );
+    //对应的uv
+    private List<Vector2> _positiveUVList = new List<Vector2>( 1 << 1 );
+    private List<Vector2> _negativeUVList = new List<Vector2>( 1 << 1 );
+    //顶点在mesh中的索引
+    private List<int> _positiveVertIndexList = new List<int>( 1 << 1 );
+    private List<int> _negativeVertIndexList = new List<int>( 1 << 1 );
+
     /// <summary>
     /// 要切割的mesh
     /// </summary>
     [SerializeField] private GameObject go_template = null;
     private GameObject go_to_cut = null;
+
+    /// <summary>
+    /// 切割平面法线
+    /// </summary>
+    private Vector3 _plane_normal = Vector3.zero;
 
     /// <summary>
     /// 视口到相机近裁面某点的射线
