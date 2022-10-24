@@ -67,8 +67,8 @@ public class TempMesh
 
     public void AddSlicedTriangle(int i1, Vector3 v2, Vector2 uv2, int i3)
     {
-        int v1 = vMapping[i1],
-            v3 = vMapping[i3];
+        var v1 = vMapping[i1];
+        var v3 = vMapping[i3];
         Vector3 normal = Vector3.Cross(v2 - vertices[v1], vertices[v3] - v2).normalized;
 
         triangles.Add(v1);
