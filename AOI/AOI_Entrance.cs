@@ -40,13 +40,13 @@ namespace AOI
         {
             _my_curr_direction = DirectionTypeEnum.Invalid;
 
-            if ( UnityEngine.Input.GetKeyDown( KeyCode.W ) )
+            if ( UnityEngine.Input.GetKey( KeyCode.W ) )
                 _my_curr_direction = DirectionTypeEnum.Up;
-            else if ( UnityEngine.Input.GetKeyDown( KeyCode.S ) )
+            else if ( UnityEngine.Input.GetKey( KeyCode.S ) )
                 _my_curr_direction = DirectionTypeEnum.Down;
-            else if ( UnityEngine.Input.GetKeyDown( KeyCode.A ) )
+            else if ( UnityEngine.Input.GetKey( KeyCode.A ) )
                 _my_curr_direction = DirectionTypeEnum.Left;
-            else if ( UnityEngine.Input.GetKeyDown( KeyCode.D ) )
+            else if ( UnityEngine.Input.GetKey( KeyCode.D ) )
                 _my_curr_direction = DirectionTypeEnum.Right;
             else
                 _my_curr_direction = DirectionTypeEnum.Invalid;
@@ -57,7 +57,7 @@ namespace AOI
         /// </summary>
         private void MoveMyPlayer()
         {
-            _curr_scene.PlayerMove( _my_id, _my_curr_direction );
+            _curr_scene.PlayerMove( _my_id, _my_curr_direction ,_my_tile);
         }
 
         /// <summary>
@@ -84,7 +84,12 @@ namespace AOI
             while ( added_count < player_count )
             {
                 add_succ = false;
-                add_succ = _curr_scene.AddPlayer( Scene.GenID(), new Vector2Int( GlobalConfig.Ins.MAP_X_SIZE - 1, GlobalConfig.Ins.MAP_Y_SIZE - 1 ), GlobalConfig.Ins._other_tile );
+                add_succ = _curr_scene.AddPlayer
+                    ( 
+                        Scene.GenID(), 
+                        new Vector2Int( Random.Range(0, GlobalConfig.Ins.MAP_X_SIZE - 1 ), Random.Range(0, GlobalConfig.Ins.MAP_Y_SIZE - 1 ) ), 
+                        GlobalConfig.Ins._other_tile 
+                    );
 
                 if ( add_succ )
                     added_count++;

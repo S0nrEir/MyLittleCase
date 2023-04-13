@@ -21,9 +21,9 @@ namespace AOI
             while ( gen_count < obs_count )
             {
                 Vector2Int gen_coord = new Vector2Int
-                    ( 
+                    (
                         Random.Range( GlobalConfig.Ins.MAP_X_SIZE - 1, GlobalConfig.Ins.MAP_Y_SIZE - 1 ),
-                        Random.Range( GlobalConfig.Ins.MAP_X_SIZE - 1, GlobalConfig.Ins.MAP_Y_SIZE - 1 ) 
+                        Random.Range( GlobalConfig.Ins.MAP_X_SIZE - 1, GlobalConfig.Ins.MAP_Y_SIZE - 1 )
                     );
 
                 _scene_data[gen_coord.x, gen_coord.y]._block = true;
@@ -33,12 +33,36 @@ namespace AOI
         /// <summary>
         /// 移动指定player
         /// </summary>
-        public void PlayerMove( int id, DirectionTypeEnum type )
+        public void PlayerMove( int id, DirectionTypeEnum type, Tile tile_ )
         {
             if ( !_player_dic.TryGetValue( id, out var player ) )
                 return;
 
             var dir = ConvertDirectionTypeEnum( type );
+            (int x, int y) target_pos = (player.Coord.x + dir.x, player.Coord.y + dir.y);
+            if ( IsOutOfRange( target_pos.x, target_pos.y ) )
+            {
+                Debug.Log( "<color=whie>move player ---> out of range</color>" );
+                return;
+            }
+
+            ref var target_pos_data = ref _scene_data[target_pos.x, target_pos.y];
+            if ( target_pos_data._block || target_pos_data._has_player )
+            {
+                Debug.Log( "<color=whie>move player ---> blocked || has player</color>" );
+                return;
+            }
+            //reset curr
+            var curr_pos = player.Coord;
+
+            ref var curr_data = ref _scene_data[curr_pos.x, curr_pos.y];
+            curr_data._has_player = false;
+            _tile_map.SetTile( new Vector3Int( curr_pos.x, curr_pos.y, 0 ), GlobalConfig.Ins._road_tile );
+
+            //move player
+            target_pos_data._has_player = true;
+            player.SetCoord( target_pos.x, target_pos.y );
+            _tile_map.SetTile( new Vector3Int( target_pos.x, target_pos.y, 0 ), tile_ );
         }
 
         /// <summary>
@@ -46,22 +70,24 @@ namespace AOI
         /// </summary>
         public bool AddPlayer( int id_, Vector2Int coord_, Tile tile_ )
         {
+            if ( IsOutOfRange( coord_.x, coord_.y ) )
+                return false;
+
             //#todo越界检查
             ref var data = ref _scene_data[coord_.x, coord_.y];
             //有其他玩家或不可通行
-            if ( data._has_player || data._block)
+            if ( data._has_player || data._block )
                 return false;
 
-            var player = new Player( id_, coord_, tile_ );
-            if ( _curr_player_count >= _player_dic.Count )
-                _player_dic.EnsureCapacity( _curr_player_count << 1 );
+            var player = new Player( id_, coord_ );
+            if ( _curr_player_lmt <= _player_dic.Count )
+                _player_dic.EnsureCapacity( _curr_player_lmt << 1 );
 
             _player_dic.Add( player.ID, player );
-            _curr_player_count++;
+            //_curr_player_count++;
 
             data._has_player = true;
             _tile_map.SetTile( new Vector3Int( coord_.x, coord_.y, 0 ), tile_ );
-
             Debug.Log( $"----------------------{_scene_data[coord_.x, coord_.y]._has_player}" );
 
             return true;
@@ -78,8 +104,8 @@ namespace AOI
                 return false;
             }
             var succ = _player_dic.Remove( player_.ID );
-            if ( succ )
-                _curr_player_count--;
+            //if ( succ )
+            //    _curr_player_count--;
 
             return succ;
         }
@@ -95,13 +121,24 @@ namespace AOI
             _tile_map = GlobalConfig.Ins._tile_map;
             for ( var i = 0; i < GlobalConfig.Ins.MAP_X_SIZE; i++ )
             {
-                for ( var j = 0; j < GlobalConfig.Ins.MAP_Y_SIZE; j++)
-                    _tile_map.SetTile( new Vector3Int( i, j ,0 ), GlobalConfig.Ins._road_tile );
+                for ( var j = 0; j < GlobalConfig.Ins.MAP_Y_SIZE; j++ )
+                {
+                    _tile_map.SetTile( new Vector3Int( i, j, 0 ), GlobalConfig.Ins._road_tile );
+                    ref Scene_Node temp_node = ref _scene_data[i, j];
+                    temp_node.Setup( new Vector2Int( i, j ), new Vector3( i * _tile_map.cellSize.x, j * _tile_map.cellSize.y, 0f ) );
+                }
             }
 
-            _player_dic = new Dictionary<int, Player>( 128 );
-            _curr_player_count = 0;
+            _player_dic = new Dictionary<int, Player>( _curr_player_lmt );
             //RandomGenerateObs();
+        }
+
+        private bool IsOutOfRange( int x, int y )
+        {
+            if ( x >= GlobalConfig.Ins.MAP_X_SIZE || y >= GlobalConfig.Ins.MAP_Y_SIZE || x < 0 || y < 0)
+                return true;
+
+            return false;
         }
 
         private Tilemap _tile_map = null;
@@ -114,7 +151,7 @@ namespace AOI
         /// <summary>
         /// 玩家数量
         /// </summary>
-        private int _curr_player_count = 0;
+        private int _curr_player_lmt = 128;
 
         /// <summary>
         /// 地图节点

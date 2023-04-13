@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 namespace AOI
 {
@@ -10,14 +7,17 @@ namespace AOI
     /// </summary>
     public class Player
     {
-        public Player(int id_ ,Vector2Int coord_,Tile tile_)
+        public void SetCoord( int x, int y )
+        {
+            Coord = new Vector2Int( x, y );
+        }
+
+        public Player( int id_, Vector2Int coord_ )
         {
             ID = id_;
             Coord = coord_;
-            _tile = tile_;
         }
 
-        private Tile _tile;
         public Vector2Int Coord { get; private set; }
         public int ID { get; private set; } = -1;
 
