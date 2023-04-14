@@ -7,6 +7,12 @@ namespace AOI
     {
         private void OnEnable()
         {
+            if ( ( MAP_X_SIZE * MAP_Y_SIZE % _aoi_cut_size ) != 0 )
+            {
+                Debug.Log( "<color=red>( MAP_X_SIZE * MAP_Y_SIZE % _aoi_cut_size )</color>" );
+                return;
+            }
+
             GlobalConfig.LoadConfig
                 (
                     MAP_X_SIZE,
@@ -17,7 +23,8 @@ namespace AOI
                     _my_tile,
                     _others_tile,
                     _others_count,
-                    _road_tile
+                    _road_tile,
+                    _aoi_cut_size
                 );
         }
 
@@ -40,13 +47,13 @@ namespace AOI
         {
             _my_curr_direction = DirectionTypeEnum.Invalid;
 
-            if ( UnityEngine.Input.GetKey( KeyCode.W ) )
+            if ( UnityEngine.Input.GetKeyDown( KeyCode.UpArrow ) )
                 _my_curr_direction = DirectionTypeEnum.Up;
-            else if ( UnityEngine.Input.GetKey( KeyCode.S ) )
+            else if ( UnityEngine.Input.GetKeyDown( KeyCode.DownArrow ) )
                 _my_curr_direction = DirectionTypeEnum.Down;
-            else if ( UnityEngine.Input.GetKey( KeyCode.A ) )
+            else if ( UnityEngine.Input.GetKeyDown( KeyCode.LeftArrow ) )
                 _my_curr_direction = DirectionTypeEnum.Left;
-            else if ( UnityEngine.Input.GetKey( KeyCode.D ) )
+            else if ( UnityEngine.Input.GetKeyDown( KeyCode.RightArrow ) )
                 _my_curr_direction = DirectionTypeEnum.Right;
             else
                 _my_curr_direction = DirectionTypeEnum.Invalid;
@@ -57,7 +64,7 @@ namespace AOI
         /// </summary>
         private void MoveMyPlayer()
         {
-            _curr_scene.PlayerMove( _my_id, _my_curr_direction ,_my_tile);
+            _curr_scene.PlayerMove( _my_id, _my_curr_direction, _my_tile );
         }
 
         /// <summary>
@@ -66,7 +73,6 @@ namespace AOI
         private void CreateScene()
         {
             _curr_scene = new Scene();
-            _curr_scene.ConnectAOIZone( new AOI_Zone(), _aoi_cut_size );
         }
 
         /// <summary>
@@ -85,10 +91,10 @@ namespace AOI
             {
                 add_succ = false;
                 add_succ = _curr_scene.AddPlayer
-                    ( 
-                        Scene.GenID(), 
-                        new Vector2Int( Random.Range(0, GlobalConfig.Ins.MAP_X_SIZE - 1 ), Random.Range(0, GlobalConfig.Ins.MAP_Y_SIZE - 1 ) ), 
-                        GlobalConfig.Ins._other_tile 
+                    (
+                        Scene.GenID(),
+                        new Vector2Int( Random.Range( 0, GlobalConfig.Ins.MAP_X_SIZE - 1 ), Random.Range( 0, GlobalConfig.Ins.MAP_Y_SIZE - 1 ) ),
+                        GlobalConfig.Ins._other_tile
                     );
 
                 if ( add_succ )
@@ -116,11 +122,6 @@ namespace AOI
         /// </summary>
         private Player _me = null;
 
-        /// <summary>
-        /// 其他玩家
-        /// </summary>
-        private Player[] _others_player_arr = null;
-
         public class GlobalConfig
         {
             public static void LoadConfig
@@ -133,8 +134,8 @@ namespace AOI
                     Tile my_tile_,
                     Tile other_tile_,
                     int others_count_,
-                    Tile road_tile_
-
+                    Tile road_tile_,
+                    int aoi_area_size_
                 )
             {
                 _instance = new GlobalConfig();
@@ -147,6 +148,7 @@ namespace AOI
                 _instance._other_tile = other_tile_;
                 _instance._others_count = others_count_;
                 _instance._road_tile = road_tile_;
+                _instance._aoi_area_size = aoi_area_size_;
             }
 
             public static GlobalConfig Ins
@@ -171,9 +173,10 @@ namespace AOI
             public Tile _other_tile = null;
             public int _others_count;
             public Tile _road_tile = null;
+            public int _aoi_area_size = 0;
         }
 
-        //---------------------editor---------------------
+        //---------------------config---------------------
 
         /// <summary>
         /// 我

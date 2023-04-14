@@ -2,11 +2,21 @@ using UnityEngine;
 
 namespace AOI
 {
-    /// <summary>
-    /// 表示一个玩家
-    /// </summary>
-    public class Player
+    public class Player : IAOI_Agent
     {
+        //--------------impl--------------
+        public void Enter( IAOI_Agent other_ )
+        {
+        }
+
+        public void Move( IAOI_Agent other_ )
+        {
+        }
+
+        public void Exit( IAOI_Agent other_ )
+        {
+        }
+
         public void SetCoord( int x, int y )
         {
             Coord = new Vector2Int( x, y );

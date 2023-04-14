@@ -13,8 +13,6 @@ namespace AOI
         /// <summary>
         /// 随机生成障碍物
         /// </summary>
-        /// <param name="empty_nodes_">避免生成障碍物的点</param>
-        /// <param name="objs_count">生成障碍物的数量</param>
         private void RandomGenerateObs( int obs_count = 30 )
         {
             var gen_count = 0;
@@ -28,6 +26,13 @@ namespace AOI
 
                 _scene_data[gen_coord.x, gen_coord.y]._block = true;
             }
+        }
+
+        public bool TryGetAOIAgent(int player_id_,out IAOI_Agent agent_)
+        {
+            _player_dic.TryGetValue( player_id_, out var player );
+            agent_ = player as IAOI_Agent;
+            return agent_ != null;
         }
 
         /// <summary>
@@ -63,6 +68,19 @@ namespace AOI
             target_pos_data._has_player = true;
             player.SetCoord( target_pos.x, target_pos.y );
             _tile_map.SetTile( new Vector3Int( target_pos.x, target_pos.y, 0 ), tile_ );
+
+            //aoi
+            //--->这块写的不好，场景和玩家应该独立出来成为全局组件，现在只能通过传值的方式给到AOI部分<---
+            //--->这块写的不好，场景和玩家应该独立出来成为全局组件，现在只能通过传值的方式给到AOI部分<---
+            //--->这块写的不好，场景和玩家应该独立出来成为全局组件，现在只能通过传值的方式给到AOI部分<---
+            _aoi_zone?.Move
+                ( 
+                    player as IAOI_Agent, 
+                    (player.Coord.x, player.Coord.y),
+                    (target_pos.x,target_pos.y), 
+                    player.ID, 
+                    this 
+                );
         }
 
         /// <summary>
@@ -110,11 +128,6 @@ namespace AOI
             return succ;
         }
 
-        public void ConnectAOIZone( AOI_Zone aoi_zone_, int aoi_cut_size_ )
-        {
-
-        }
-
         public Scene()
         {
             _scene_data = new Scene_Node[GlobalConfig.Ins.MAP_X_SIZE, GlobalConfig.Ins.MAP_Y_SIZE];
@@ -130,16 +143,21 @@ namespace AOI
             }
 
             _player_dic = new Dictionary<int, Player>( _curr_player_lmt );
+            _aoi_zone = new AOI_Zone( GlobalConfig.Ins._aoi_area_size );
             //RandomGenerateObs();
         }
 
         private bool IsOutOfRange( int x, int y )
         {
-            if ( x >= GlobalConfig.Ins.MAP_X_SIZE || y >= GlobalConfig.Ins.MAP_Y_SIZE || x < 0 || y < 0)
-                return true;
+            return x >= GlobalConfig.Ins.MAP_X_SIZE || y >= GlobalConfig.Ins.MAP_Y_SIZE || x < 0 || y < 0;
+            //return x < GlobalConfig.Ins.MAP_X_SIZE && y < GlobalConfig.Ins.MAP_Y_SIZE && x >= 0 && y >= 0 ;
+            //if ( x >= GlobalConfig.Ins.MAP_X_SIZE || y >= GlobalConfig.Ins.MAP_Y_SIZE || x < 0 || y < 0)
+            //    return true;
 
-            return false;
+            //return false;
         }
+
+        private AOI_Zone _aoi_zone = null;
 
         private Tilemap _tile_map = null;
 
