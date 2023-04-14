@@ -53,7 +53,11 @@ namespace AOI
                 Enter( agent_, from_.x, from_.y, player_id_, scene_ );
             }
         }
-        //#todo得拿到这个AOI区域内的所有玩家才能
+        //#todo得拿到这个AOI区域内的所有对象才能知道当玩家进入新区域时，要添加哪些观察者和被观察者
+        //因为考虑到玩家并不是要直接添加该区域的所有玩家，可能会有一些筛选条件，有的拿有的不拿，
+        //另外这样做也有利于扩展，建议在Scene处理对象移动的时候就确定要添加哪些观察者
+        //目前想到的办法：AOI_Area提供一个对外接口表示当前区域内的所有玩家ID
+        //Scene在做逻辑的时候，拿这些ID，然后做筛选，作为要添加的观察者。
         //如果是基于对象自身的九宫格范围的话：在进入和离开的时候拿到两个比较结果的差集，作为进入和离开要通知的被观察者和观察者
         public void Enter( IAOI_Agent agent_, int x_, int y_, int player_id_, Scene scene_ )
         {
