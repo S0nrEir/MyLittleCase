@@ -54,7 +54,7 @@ namespace AOI
                 Enter( agent_, to_.x, to_.y, player_id_, scene_ );
             }
         }
-        //#todo得拿到这个AOI区域内的所有对象才能知道当玩家进入新区域时，要添加哪些观察者和被观察者
+        //得拿到这个AOI区域内的所有对象才能知道当玩家进入新区域时，要添加哪些观察者和被观察者
         //因为考虑到玩家并不是要直接添加该区域的所有玩家，可能会有一些筛选条件，有的拿有的不拿，
         //另外这样做也有利于扩展，建议在Scene处理对象移动的时候就确定要添加哪些观察者
         //目前想到的办法：AOI_Area提供一个对外接口表示当前区域内的所有玩家ID
@@ -87,9 +87,6 @@ namespace AOI
                 area.AddObserve( player_id_, id );
                 area.AddObserving( player_id_, id );
             }
-
-            //将自己的被观察者
-
             var watchers = area.GetObserve( player_id_ );
             IAOI_Agent temp_agent = null;
             var iter = watchers.GetEnumerator();
@@ -177,10 +174,6 @@ namespace AOI
                 return -1;
 
             return y;
-            //if ( IsOutOfRange( y_ ) )
-            //    return -1;
-
-            //return y_ / _size;
         }
 
         private int X( int x_ )
@@ -190,11 +183,6 @@ namespace AOI
                 return -1;
 
             return x;
-
-            //if ( IsOutOfRange( x_ ) )
-            //    return -1;
-
-            //return x_ / _size;
         }
 
         private bool IsOutOfRange( int val )
@@ -214,7 +202,7 @@ namespace AOI
                 var cnt = temp.Capacity;
 
                 for ( var j = 0; j < cnt; j++ )
-                    temp.Add( new AOI_Area() );
+                    temp.Add( new AOI_Area(i,j) );
             }//end for
         }
 

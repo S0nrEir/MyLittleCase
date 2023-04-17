@@ -100,7 +100,6 @@ namespace AOI
             if ( IsOutOfRange( coord_.x, coord_.y ) )
                 return false;
 
-            //#todo越界检查
             ref var data = ref _scene_data[coord_.x, coord_.y];
             //有其他玩家或不可通行
             if ( data._has_player || data._block )
@@ -116,7 +115,6 @@ namespace AOI
                 _player_dic.EnsureCapacity( _curr_player_lmt << 1 );
 
             _player_dic.Add( player.ID, player );
-            //_curr_player_count++;
 
             data._has_player = true;
             _tile_map.SetTile( new Vector3Int( coord_.x, coord_.y, 0 ), tile_ );
@@ -167,11 +165,6 @@ namespace AOI
         private bool IsOutOfRange( int x, int y )
         {
             return x >= GlobalConfig.Ins.MAP_X_SIZE || y >= GlobalConfig.Ins.MAP_Y_SIZE || x < 0 || y < 0;
-            //return x < GlobalConfig.Ins.MAP_X_SIZE && y < GlobalConfig.Ins.MAP_Y_SIZE && x >= 0 && y >= 0 ;
-            //if ( x >= GlobalConfig.Ins.MAP_X_SIZE || y >= GlobalConfig.Ins.MAP_Y_SIZE || x < 0 || y < 0)
-            //    return true;
-
-            //return false;
         }
 
         private AOI_Zone _aoi_zone = null;

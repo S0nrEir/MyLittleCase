@@ -55,8 +55,8 @@ namespace AOI
                 _my_curr_direction = DirectionTypeEnum.Left;
             else if ( UnityEngine.Input.GetKeyDown( KeyCode.RightArrow ) )
                 _my_curr_direction = DirectionTypeEnum.Right;
-            else
-                _my_curr_direction = DirectionTypeEnum.Invalid;
+            //else
+            //    _my_curr_direction = DirectionTypeEnum.Invalid;
         }
 
         /// <summary>
@@ -142,17 +142,17 @@ namespace AOI
                     int aoi_area_size_
                 )
             {
-                _instance = new GlobalConfig();
-                _instance.MAP_X_SIZE = x_size_;
-                _instance.MAP_Y_SIZE = y_size_;
-                _instance.AOI_SIZE = aoi_size_;
+                _instance                   = new GlobalConfig();
+                _instance.MAP_X_SIZE        = x_size_;
+                _instance.MAP_Y_SIZE        = y_size_;
+                _instance.AOI_SIZE          = aoi_size_;
                 _instance._scene_empty_node = empty_scene_node;
-                _instance._tile_map = tile_map_;
-                _instance._my_tile = my_tile_;
-                _instance._other_tile = other_tile_;
-                _instance._others_count = others_count_;
-                _instance._road_tile = road_tile_;
-                _instance._aoi_area_size = aoi_area_size_;
+                _instance._tile_map         = tile_map_;
+                _instance._my_tile          = my_tile_;
+                _instance._other_tile       = other_tile_;
+                _instance._others_count     = others_count_;
+                _instance._road_tile        = road_tile_;
+                _instance._aoi_area_size    = aoi_area_size_;
             }
 
             public static GlobalConfig Ins

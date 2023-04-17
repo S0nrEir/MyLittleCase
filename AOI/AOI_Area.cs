@@ -141,11 +141,12 @@ namespace AOI
             return _observing.Remove(id_ );
         }
 
-        public AOI_Area()
+        public AOI_Area(int x,int y)
         {
-            _observe = new Dictionary<int, HashSet<int>>();
-            _observing = new Dictionary<int, HashSet<int>>();
+            _observe        = new Dictionary<int, HashSet<int>>();
+            _observing      = new Dictionary<int, HashSet<int>>();
             _curr_area_objs = new HashSet<int>();
+            AOIZoneCoord    = new Vector2Int( x, y );
         }
 
         /// <summary>
@@ -162,5 +163,10 @@ namespace AOI
         /// 当前场景内的对象ID集合
         /// </summary>
         private HashSet<int> _curr_area_objs = null;
+
+        /// <summary>
+        /// AOI空间下的世界坐标
+        /// </summary>
+        public Vector2Int AOIZoneCoord { get; private set; }
     }
 }
