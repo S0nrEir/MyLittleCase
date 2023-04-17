@@ -5,16 +5,19 @@ namespace AOI
     public class Player : IAOI_Agent
     {
         //--------------impl--------------
-        public void Enter( IAOI_Agent other_ )
+        public virtual void Enter( IAOI_Agent other_ )
         {
+            Debug.Log( $"id = {ID} ---> enter,enter id = {( other_ as Player ).ID}" );
         }
 
-        public void Move( IAOI_Agent other_ )
+        public virtual void Move( IAOI_Agent other_ )
         {
+            Debug.Log( $"id = {ID} ---> Move,move id = {( other_ as Player ).ID}" );
         }
 
-        public void Exit( IAOI_Agent other_ )
+        public virtual void Exit( IAOI_Agent other_ )
         {
+            Debug.Log( $"id = {ID} ---> exit,exit id = {( other_ as Player ).ID}" );
         }
 
         public void SetCoord( int x, int y )

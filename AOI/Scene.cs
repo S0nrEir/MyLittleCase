@@ -28,6 +28,9 @@ namespace AOI
             }
         }
 
+        /// <summary>
+        /// 获取一个AOI Agent
+        /// </summary>
         public bool TryGetAOIAgent(int player_id_,out IAOI_Agent agent_)
         {
             _player_dic.TryGetValue( player_id_, out var player );
@@ -42,6 +45,8 @@ namespace AOI
         {
             if ( !_player_dic.TryGetValue( id, out var player ) )
                 return;
+            if ( type != DirectionTypeEnum.Invalid )
+                ;
 
             var dir = ConvertDirectionTypeEnum( type );
             (int x, int y) target_pos = (player.Coord.x + dir.x, player.Coord.y + dir.y);
@@ -51,12 +56,29 @@ namespace AOI
                 return;
             }
 
+            //if ( target_pos.x == player.Coord.x && target_pos.y == player.Coord.y )
+            //    return;
+
             ref var target_pos_data = ref _scene_data[target_pos.x, target_pos.y];
             if ( target_pos_data._block || target_pos_data._has_player )
             {
-                Debug.Log( "<color=whie>move player ---> blocked || has player</color>" );
+                //Debug.Log( "<color=whie>move player ---> blocked || has player</color>" );
                 return;
             }
+
+            //aoi
+            //--->这块写的不好，场景和玩家应该独立出来成为全局组件，现在只能通过传值的方式给到AOI部分<---
+            //--->这块写的不好，场景和玩家应该独立出来成为全局组件，现在只能通过传值的方式给到AOI部分<---
+            //--->这块写的不好，场景和玩家应该独立出来成为全局组件，现在只能通过传值的方式给到AOI部分<---
+            _aoi_zone?.Move
+                (
+                    player as IAOI_Agent,
+                    (player.Coord.x, player.Coord.y),
+                    (target_pos.x, target_pos.y),
+                    player.ID,
+                    this
+                );
+
             //reset curr
             var curr_pos = player.Coord;
 
@@ -68,25 +90,12 @@ namespace AOI
             target_pos_data._has_player = true;
             player.SetCoord( target_pos.x, target_pos.y );
             _tile_map.SetTile( new Vector3Int( target_pos.x, target_pos.y, 0 ), tile_ );
-
-            //aoi
-            //--->这块写的不好，场景和玩家应该独立出来成为全局组件，现在只能通过传值的方式给到AOI部分<---
-            //--->这块写的不好，场景和玩家应该独立出来成为全局组件，现在只能通过传值的方式给到AOI部分<---
-            //--->这块写的不好，场景和玩家应该独立出来成为全局组件，现在只能通过传值的方式给到AOI部分<---
-            _aoi_zone?.Move
-                ( 
-                    player as IAOI_Agent, 
-                    (player.Coord.x, player.Coord.y),
-                    (target_pos.x,target_pos.y), 
-                    player.ID, 
-                    this 
-                );
         }
 
         /// <summary>
         /// 向场景内添加一个玩家
         /// </summary>
-        public bool AddPlayer( int id_, Vector2Int coord_, Tile tile_ )
+        public bool AddPlayer( int id_, Vector2Int coord_, Tile tile_ ,bool is_my_player_ = false)
         {
             if ( IsOutOfRange( coord_.x, coord_.y ) )
                 return false;
@@ -97,7 +106,12 @@ namespace AOI
             if ( data._has_player || data._block )
                 return false;
 
-            var player = new Player( id_, coord_ );
+            Player player = null;
+            if ( is_my_player_ )
+                player = new MyPlayer( id_, coord_ );
+            else
+                player = new Player( id_, coord_ );
+
             if ( _curr_player_lmt <= _player_dic.Count )
                 _player_dic.EnsureCapacity( _curr_player_lmt << 1 );
 
@@ -108,6 +122,8 @@ namespace AOI
             _tile_map.SetTile( new Vector3Int( coord_.x, coord_.y, 0 ), tile_ );
             Debug.Log( $"----------------------{_scene_data[coord_.x, coord_.y]._has_player}" );
 
+            //add to aoi area
+            _aoi_zone.Enter( player as IAOI_Agent, coord_.x, coord_.y, id_, this );
             return true;
         }
 
@@ -121,10 +137,11 @@ namespace AOI
                 Debug.LogError( "_player_dic is null" );
                 return false;
             }
-            var succ = _player_dic.Remove( player_.ID );
-            //if ( succ )
-            //    _curr_player_count--;
+            //remove from aoi
+            _aoi_zone.Leave( player_ as IAOI_Agent, player_.Coord.x, player_.Coord.y,player_.ID, this );
 
+
+            var succ = _player_dic.Remove( player_.ID );
             return succ;
         }
 
@@ -200,9 +217,9 @@ namespace AOI
 
         public static int GenID()
         {
-            return _id_pool--;
+            return _id_pool++;
         }
-        private static int _id_pool = int.MaxValue;
+        private static int _id_pool = 0;
     }
 
     /// <summary>

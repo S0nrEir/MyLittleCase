@@ -28,7 +28,7 @@ namespace AOI
             var iter = watchers.GetEnumerator();
             while ( iter.MoveNext() )
             {
-                scene_.TryGetAOIAgent( player_id_, out temp_agent );
+                scene_.TryGetAOIAgent( iter.Current, out temp_agent );
                 temp_agent?.Move( agent_ );
             }
 
@@ -37,9 +37,10 @@ namespace AOI
             iter = watchers.GetEnumerator();
             while ( iter.MoveNext() )
             {
-                scene_.TryGetAOIAgent( player_id_, out temp_agent );
+                scene_.TryGetAOIAgent( iter.Current, out temp_agent );
                 if ( temp_agent != null )
                     agent_.Move( temp_agent );
+
             }
             //检查穿越AOI边界
             if ( TryGetArea( to_.x, to_.y, out var target_area ) )
@@ -50,7 +51,7 @@ namespace AOI
                 //离开当前AOI区域，进入新的AOI区域
                 //当前区域leave
                 Leave( agent_, from_.x, from_.y, player_id_, scene_ );
-                Enter( agent_, from_.x, from_.y, player_id_, scene_ );
+                Enter( agent_, to_.x, to_.y, player_id_, scene_ );
             }
         }
         //#todo得拿到这个AOI区域内的所有对象才能知道当玩家进入新区域时，要添加哪些观察者和被观察者
@@ -73,24 +74,43 @@ namespace AOI
                 return;
             }
 
-            //处理观察者
+            //处理观察者和被观察者
+            //暂时处理：添加该区域内所有的对象
+            area.AddAgent( player_id_ );
+            var agents = area.GetAllAgents();
+            foreach ( var id in agents )
+            {
+                //不添加自己
+                if ( id == player_id_ )
+                    continue;
+
+                area.AddObserve( player_id_, id );
+                area.AddObserving( player_id_, id );
+            }
+
+            //将自己的被观察者
+
             var watchers = area.GetObserve( player_id_ );
             IAOI_Agent temp_agent = null;
             var iter = watchers.GetEnumerator();
             while ( iter.MoveNext() )
             {
-                scene_.TryGetAOIAgent( player_id_, out temp_agent );
+                scene_.TryGetAOIAgent( iter.Current, out temp_agent );
                 temp_agent?.Enter( agent_ );
             }
+
+            foreach ( var id in area.GetObserveArray( player_id_ ) )
+                //让我的观察者观察我
+                area.AddObserving( id, player_id_ );
 
             //处理被观察者
             watchers = area.GetObserved( player_id_ );
             iter = watchers.GetEnumerator();
             while ( iter.MoveNext() )
             {
-                scene_.TryGetAOIAgent( player_id_, out temp_agent );
+                scene_.TryGetAOIAgent( iter.Current, out temp_agent );
                 if ( temp_agent != null )
-                    agent_.Exit( temp_agent );
+                    agent_.Enter( temp_agent );
             }
         }
 
@@ -114,7 +134,7 @@ namespace AOI
             var iter = watchers.GetEnumerator();
             while ( iter.MoveNext() )
             {
-                scene_.TryGetAOIAgent( player_id_, out temp_agent );
+                scene_.TryGetAOIAgent( iter.Current , out temp_agent );
                 temp_agent?.Exit( agent_ );
             }
 
@@ -123,10 +143,13 @@ namespace AOI
             iter = watchers.GetEnumerator();
             while ( iter.MoveNext() )
             {
-                scene_.TryGetAOIAgent( player_id_, out temp_agent );
+                scene_.TryGetAOIAgent( iter.Current , out temp_agent );
                 if ( temp_agent != null )
                     agent_.Exit( temp_agent );
             }
+
+            area.RemoveObserve( player_id_ );
+            area.RemoveObserving( player_id_ );
             area.RemoveAgent( player_id_ );
         }
 
@@ -149,26 +172,29 @@ namespace AOI
 
         private int Y( int y_ )
         {
-            if ( IsOutOfRange( y_ ) )
+            var y = y_ / _size;
+            if ( IsOutOfRange( y ) )
                 return -1;
 
-            return y_ / _size;
+            return y;
+            //if ( IsOutOfRange( y_ ) )
+            //    return -1;
+
+            //return y_ / _size;
         }
 
         private int X( int x_ )
         {
-            if ( IsOutOfRange( x_ ) )
+            var x = x_ / _size;
+            if ( IsOutOfRange( x ) )
                 return -1;
 
-            return x_ / _size;
-        }
+            return x;
 
-        /// <summary>
-        /// 越界
-        /// </summary>
-        private bool IsOutOfRange( int x, int y )
-        {
-            return x >= _size || x < 0 || y >= _size || y < 0;
+            //if ( IsOutOfRange( x_ ) )
+            //    return -1;
+
+            //return x_ / _size;
         }
 
         private bool IsOutOfRange( int val )
@@ -185,15 +211,25 @@ namespace AOI
             {
                 temp = new List<AOI_Area>( _size );
                 _areas[i] = temp;
-                var cnt = temp.Count;
+                var cnt = temp.Capacity;
 
                 for ( var j = 0; j < cnt; j++ )
-                    temp[j] = new AOI_Area();
-
+                    temp.Add( new AOI_Area() );
             }//end for
         }
 
         private int _size = 0;
         private List<AOI_Area>[] _areas = null;
+    }
+
+    /// <summary>
+    /// 通知类型
+    /// </summary>
+    internal enum NotifyTypeEnum
+    {
+        Invalid = -1,
+        Move = 0,
+        Enter,
+        Leave
     }
 }

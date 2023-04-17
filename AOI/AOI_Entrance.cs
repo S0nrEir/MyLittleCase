@@ -81,8 +81,12 @@ namespace AOI
         private void CreatePlayer()
         {
             _my_id = Scene.GenID();
-            _curr_scene.AddPlayer( _my_id, new Vector2Int( 0, 0 ), _my_tile );
+            _curr_scene.AddPlayer( _my_id, new Vector2Int( 0, 0 ), _my_tile ,true);
+            //for test
+            _curr_scene.AddPlayer( Scene.GenID(), new Vector2Int( 11, 0 ), GlobalConfig.Ins._other_tile );
+            _curr_scene.AddPlayer( Scene.GenID(), new Vector2Int( 0, 11 ), GlobalConfig.Ins._other_tile );
 
+            return;
             var player_count = GlobalConfig.Ins._others_count;
             var added_count = 0;
             var add_succ = false;
