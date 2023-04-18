@@ -6,12 +6,12 @@ using static AOI.AOI_Entrance;
 namespace AOI
 {
     /// <summary>
-    /// ÕæÊµ³¡¾°
+    /// çœŸå®åœºæ™¯
     /// </summary>
     public class Scene
     {
         /// <summary>
-        /// Ëæ»úÉú³ÉÕÏ°­Îï
+        /// éšæœºç”Ÿæˆéšœç¢ç‰©
         /// </summary>
         private void RandomGenerateObs( int obs_count = 30 )
         {
@@ -29,7 +29,7 @@ namespace AOI
         }
 
         /// <summary>
-        /// »ñÈ¡Ò»¸öAOI Agent
+        /// è·å–ä¸€ä¸ªAOI Agent
         /// </summary>
         public bool TryGetAOIAgent(int player_id_,out IAOI_Agent agent_)
         {
@@ -39,7 +39,7 @@ namespace AOI
         }
 
         /// <summary>
-        /// ÒÆ¶¯Ö¸¶¨player
+        /// ç§»åŠ¨æŒ‡å®šplayer
         /// </summary>
         public void PlayerMove( int id, DirectionTypeEnum type, Tile tile_ )
         {
@@ -67,9 +67,9 @@ namespace AOI
             }
 
             //aoi
-            //--->Õâ¿éĞ´µÄ²»ºÃ£¬³¡¾°ºÍÍæ¼ÒÓ¦¸Ã¶ÀÁ¢³öÀ´³ÉÎªÈ«¾Ö×é¼ş£¬ÏÖÔÚÖ»ÄÜÍ¨¹ı´«ÖµµÄ·½Ê½¸øµ½AOI²¿·Ö<---
-            //--->Õâ¿éĞ´µÄ²»ºÃ£¬³¡¾°ºÍÍæ¼ÒÓ¦¸Ã¶ÀÁ¢³öÀ´³ÉÎªÈ«¾Ö×é¼ş£¬ÏÖÔÚÖ»ÄÜÍ¨¹ı´«ÖµµÄ·½Ê½¸øµ½AOI²¿·Ö<---
-            //--->Õâ¿éĞ´µÄ²»ºÃ£¬³¡¾°ºÍÍæ¼ÒÓ¦¸Ã¶ÀÁ¢³öÀ´³ÉÎªÈ«¾Ö×é¼ş£¬ÏÖÔÚÖ»ÄÜÍ¨¹ı´«ÖµµÄ·½Ê½¸øµ½AOI²¿·Ö<---
+            //--->è¿™å—å†™çš„ä¸å¥½ï¼Œåœºæ™¯å’Œç©å®¶åº”è¯¥ç‹¬ç«‹å‡ºæ¥æˆä¸ºå…¨å±€ç»„ä»¶ï¼Œç°åœ¨åªèƒ½é€šè¿‡ä¼ å€¼çš„æ–¹å¼ç»™åˆ°AOIéƒ¨åˆ†<---
+            //--->è¿™å—å†™çš„ä¸å¥½ï¼Œåœºæ™¯å’Œç©å®¶åº”è¯¥ç‹¬ç«‹å‡ºæ¥æˆä¸ºå…¨å±€ç»„ä»¶ï¼Œç°åœ¨åªèƒ½é€šè¿‡ä¼ å€¼çš„æ–¹å¼ç»™åˆ°AOIéƒ¨åˆ†<---
+            //--->è¿™å—å†™çš„ä¸å¥½ï¼Œåœºæ™¯å’Œç©å®¶åº”è¯¥ç‹¬ç«‹å‡ºæ¥æˆä¸ºå…¨å±€ç»„ä»¶ï¼Œç°åœ¨åªèƒ½é€šè¿‡ä¼ å€¼çš„æ–¹å¼ç»™åˆ°AOIéƒ¨åˆ†<---
             _aoi_zone?.Move
                 (
                     player as IAOI_Agent,
@@ -93,7 +93,7 @@ namespace AOI
         }
 
         /// <summary>
-        /// Ïò³¡¾°ÄÚÌí¼ÓÒ»¸öÍæ¼Ò
+        /// å‘åœºæ™¯å†…æ·»åŠ ä¸€ä¸ªç©å®¶
         /// </summary>
         public bool AddPlayer( int id_, Vector2Int coord_, Tile tile_ ,bool is_my_player_ = false)
         {
@@ -101,7 +101,7 @@ namespace AOI
                 return false;
 
             ref var data = ref _scene_data[coord_.x, coord_.y];
-            //ÓĞÆäËûÍæ¼Ò»ò²»¿ÉÍ¨ĞĞ
+            //æœ‰å…¶ä»–ç©å®¶æˆ–ä¸å¯é€šè¡Œ
             if ( data._has_player || data._block )
                 return false;
 
@@ -126,7 +126,7 @@ namespace AOI
         }
 
         /// <summary>
-        /// ´Ó³¡¾°ÄÚÒÆ³ıÒ»¸öÍæ¼Ò
+        /// ä»åœºæ™¯å†…ç§»é™¤ä¸€ä¸ªç©å®¶
         /// </summary>
         public bool RemovePlayer( Player player_ )
         {
@@ -172,22 +172,22 @@ namespace AOI
         private Tilemap _tile_map = null;
 
         /// <summary>
-        /// Íæ¼Ò»º´æ
+        /// ç©å®¶ç¼“å­˜
         /// </summary>
         private Dictionary<int, Player> _player_dic = null;
 
         /// <summary>
-        /// Íæ¼ÒÊıÁ¿
+        /// ç©å®¶æ•°é‡
         /// </summary>
         private int _curr_player_lmt = 128;
 
         /// <summary>
-        /// µØÍ¼½Úµã
+        /// åœ°å›¾èŠ‚ç‚¹
         /// </summary>
         private Scene_Node[,] _scene_data = null;
 
         /// <summary>
-        /// ·½ÏòÃ¶¾Ù×ª»»
+        /// æ–¹å‘æšä¸¾è½¬æ¢
         /// </summary>
         public (int x, int y) ConvertDirectionTypeEnum( DirectionTypeEnum type )
         {
@@ -216,7 +216,7 @@ namespace AOI
     }
 
     /// <summary>
-    /// ·½ÏòÃ¶¾Ù
+    /// æ–¹å‘æšä¸¾
     /// </summary>
     public enum DirectionTypeEnum
     {

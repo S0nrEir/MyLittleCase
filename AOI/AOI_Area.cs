@@ -5,12 +5,12 @@ using UnityEngine;
 namespace AOI
 {
     /// <summary>
-    /// ±íÊ¾Ò»¸öAOIÇøÓò
+    /// è¡¨ç¤ºä¸€ä¸ªAOIåŒºåŸŸ
     /// </summary>
     public class AOI_Area
     {
         /// <summary>
-        /// »ñÈ¡¶ÔÓ¦objµÄ¹Û²ìÕß
+        /// è·å–å¯¹åº”objçš„è§‚å¯Ÿè€…
         /// </summary>
         public int[] GetObserveArray( int id_ )
         {
@@ -21,7 +21,7 @@ namespace AOI
         }
 
         /// <summary>
-        /// »ñÈ¡ÇøÓòÄÚËùÓĞagent
+        /// è·å–åŒºåŸŸå†…æ‰€æœ‰agent
         /// </summary>
         public int[] GetAllAgents()
         {
@@ -29,7 +29,7 @@ namespace AOI
         }
 
         /// <summary>
-        /// ´ÓAOIÇøÓòÄÚÒÆ³ı¶ÔÏó
+        /// ä»AOIåŒºåŸŸå†…ç§»é™¤å¯¹è±¡
         /// </summary>
         public bool RemoveAgent( int id )
         {
@@ -37,7 +37,7 @@ namespace AOI
         }
 
         /// <summary>
-        /// Ìí¼Ó¶ÔÏóµ½AOIÇøÓòÄÚ
+        /// æ·»åŠ å¯¹è±¡åˆ°AOIåŒºåŸŸå†…
         /// </summary>
         public bool AddAgent( int id )
         {
@@ -51,11 +51,11 @@ namespace AOI
         }
 
         /// <summary>
-        /// Ìí¼ÓÒ»¸öagentµ½¸ÃÇøÓò
+        /// æ·»åŠ ä¸€ä¸ªagentåˆ°è¯¥åŒºåŸŸ
         /// </summary>
-        /// <param name="id_">ÒªÌí¼Óµ½¸ÃÇøÓòµÄagentid</param>
-        /// <param name="observe_to_add_">ÒªÎª¸ÃagentÌí¼ÓµÄ¹Û²ìÕß</param>
-        /// <param name="observing_to_add_">ÒªÎª¸ÃagentÌí¼ÓµÄ±»¹Û²ìÕß</param>
+        /// <param name="id_">è¦æ·»åŠ åˆ°è¯¥åŒºåŸŸçš„agentid</param>
+        /// <param name="observe_to_add_">è¦ä¸ºè¯¥agentæ·»åŠ çš„è§‚å¯Ÿè€…</param>
+        /// <param name="observing_to_add_">è¦ä¸ºè¯¥agentæ·»åŠ çš„è¢«è§‚å¯Ÿè€…</param>
         public bool AddAgent( int id_, IEnumerable<int> observe_to_add_, IEnumerable<int> observing_to_add_ ) 
         {
             if ( _observing.ContainsKey( id_ ) || _observe.ContainsKey( id_ ) )
@@ -102,7 +102,7 @@ namespace AOI
         }
 
         /// <summary>
-        /// »ñÈ¡Ö¸¶¨¶ÔÏóµÄ¹Û²ìÕß
+        /// è·å–æŒ‡å®šå¯¹è±¡çš„è§‚å¯Ÿè€…
         /// </summary>
         public HashSet<int> GetObserve( int id_ )
         {
@@ -114,7 +114,7 @@ namespace AOI
         }
 
         /// <summary>
-        /// »ñÈ¡Ö¸¶¨¶ÔÏóµÄ±»¹Û²ìÕß
+        /// è·å–æŒ‡å®šå¯¹è±¡çš„è¢«è§‚å¯Ÿè€…
         /// </summary>
         public HashSet<int> GetObserved( int id_ )
         {
@@ -126,7 +126,7 @@ namespace AOI
         }
 
         /// <summary>
-        /// ÒÆ³ıÒ»¸ö¶ÔÏóµÄËùÓĞ¹Û²ìÕß
+        /// ç§»é™¤ä¸€ä¸ªå¯¹è±¡çš„æ‰€æœ‰è§‚å¯Ÿè€…
         /// </summary>
         public bool RemoveObserve( int id_ )
         {
@@ -134,7 +134,7 @@ namespace AOI
         }
 
         /// <summary>
-        /// ÒÆ³ıÒ»¸ö¶ÔÏóµÄËùÓĞ±»¹Û²ìÕß
+        /// ç§»é™¤ä¸€ä¸ªå¯¹è±¡çš„æ‰€æœ‰è¢«è§‚å¯Ÿè€…
         /// </summary>
         public bool RemoveObserving( int id_ )
         {
@@ -150,22 +150,22 @@ namespace AOI
         }
 
         /// <summary>
-        /// ¶ÔÓ¦ID¶ÔÏóµÄ¹Û²ìÕß
+        /// å¯¹åº”IDå¯¹è±¡çš„è§‚å¯Ÿè€…
         /// </summary>
         private Dictionary<int, HashSet<int>> _observe;
 
         /// <summary>
-        /// ¶ÔÓ¦ID¶ÔÏóµÄ±»¹Û²ìÕß
+        /// å¯¹åº”IDå¯¹è±¡çš„è¢«è§‚å¯Ÿè€…
         /// </summary>
         private Dictionary<int, HashSet<int>> _observing;
 
         /// <summary>
-        /// µ±Ç°³¡¾°ÄÚµÄ¶ÔÏóID¼¯ºÏ
+        /// å½“å‰åœºæ™¯å†…çš„å¯¹è±¡IDé›†åˆ
         /// </summary>
         private HashSet<int> _curr_area_objs = null;
 
         /// <summary>
-        /// AOI¿Õ¼äÏÂµÄÊÀ½ç×ø±ê
+        /// AOIç©ºé—´ä¸‹çš„ä¸–ç•Œåæ ‡
         /// </summary>
         public Vector2Int AOIZoneCoord { get; private set; }
     }

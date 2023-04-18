@@ -41,7 +41,7 @@ namespace AOI
         }
 
         /// <summary>
-        /// ´¦ÀíÊäÈë
+        /// å¤„ç†è¾“å…¥
         /// </summary>
         private void Input()
         {
@@ -60,7 +60,7 @@ namespace AOI
         }
 
         /// <summary>
-        /// ÒÆ¶¯Íæ¼Ò
+        /// ç§»åŠ¨ç©å®¶
         /// </summary>
         private void MoveMyPlayer()
         {
@@ -68,7 +68,7 @@ namespace AOI
         }
 
         /// <summary>
-        /// ´´½¨³¡¾°
+        /// åˆ›å»ºåœºæ™¯
         /// </summary>
         private void CreateScene()
         {
@@ -76,7 +76,7 @@ namespace AOI
         }
 
         /// <summary>
-        /// ´´½¨AOI¶ÔÏó
+        /// åˆ›å»ºAOIå¯¹è±¡
         /// </summary>
         private void CreatePlayer()
         {
@@ -90,7 +90,7 @@ namespace AOI
             var player_count = GlobalConfig.Ins._others_count;
             var added_count = 0;
             var add_succ = false;
-            //#todoÔİÊ±½â¾ö°ì·¨£¬Ëæ²»µ½¾ÍÒ»Ö±Ëæ»úÖ±µ½½á¹ûÕıÈ·
+            //#todoæš‚æ—¶è§£å†³åŠæ³•ï¼Œéšä¸åˆ°å°±ä¸€ç›´éšæœºç›´åˆ°ç»“æœæ­£ç¡®
             while ( added_count < player_count )
             {
                 add_succ = false;
@@ -107,22 +107,22 @@ namespace AOI
         }
 
         /// <summary>
-        /// µ±Ç°·½Ïò
+        /// å½“å‰æ–¹å‘
         /// </summary>
         private DirectionTypeEnum _my_curr_direction = DirectionTypeEnum.Invalid;
 
         /// <summary>
-        /// ³¡¾°
+        /// åœºæ™¯
         /// </summary>
         private Scene _curr_scene = null;
 
         /// <summary>
-        /// ÎÒµÄÍæ¼ÒID
+        /// æˆ‘çš„ç©å®¶ID
         /// </summary>
         private int _my_id = 0;
 
         /// <summary>
-        /// ÎÒ
+        /// æˆ‘
         /// </summary>
         private Player _me = null;
 
@@ -183,7 +183,7 @@ namespace AOI
         //---------------------config---------------------
 
         /// <summary>
-        /// ÎÒ
+        /// æˆ‘
         /// </summary>
         [SerializeField] private Tile _my_tile;
 
@@ -193,40 +193,40 @@ namespace AOI
         [SerializeField] private Tilemap _tile_map = null;
 
         /// <summary>
-        /// ÆäËûAOI¶ÔÏóÊıÁ¿
+        /// å…¶ä»–AOIå¯¹è±¡æ•°é‡
         /// </summary>
         [Range( 1, 99 )]
         [SerializeField] private int _others_count = 1;
 
         /// <summary>
-        /// ÆäËûAOI¶ÔÏó
+        /// å…¶ä»–AOIå¯¹è±¡
         /// </summary>
         [SerializeField] private Tile _others_tile;
 
         /// <summary>
-        /// µØÍ¼ºáÏò³ß´ç
+        /// åœ°å›¾æ¨ªå‘å°ºå¯¸
         /// </summary>
         [Range( 10, 100 )]
         [SerializeField] private int MAP_X_SIZE = 100;
 
         /// <summary>
-        /// µØÍ¼ÊúÏò³ß´ç
+        /// åœ°å›¾ç«–å‘å°ºå¯¸
         /// </summary>
         [Range( 10, 100 )]
         [SerializeField] private int MAP_Y_SIZE = 100;
 
         /// <summary>
-        /// AOIÇøÓò»®·Ö»®·Ö¼¶±ğ
+        /// AOIåŒºåŸŸåˆ’åˆ†åˆ’åˆ†çº§åˆ«
         /// </summary>
         [SerializeField] private int _aoi_cut_size = 10;
 
         /// <summary>
-        /// Í¨Â·map
+        /// é€šè·¯map
         /// </summary>
         [SerializeField] private Tile _road_tile = null;
 
         /// <summary>
-        /// ²»Ëæ»úÉú³ÉÕÏ°­µÄµã
+        /// ä¸éšæœºç”Ÿæˆéšœç¢çš„ç‚¹
         /// </summary>
         private Vector2Int[] _scene_empty_node = new Vector2Int[]
         {

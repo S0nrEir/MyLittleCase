@@ -5,13 +5,13 @@ using UnityEngine;
 namespace AOI
 {
     /// <summary>
-    /// ±íÊ¾ÕæÊµ³¡¾°µÄÒ»¸ö×ø±ê½Úµã
+    /// è¡¨ç¤ºçœŸå®åœºæ™¯çš„ä¸€ä¸ªåæ ‡èŠ‚ç‚¹
     /// </summary>
     public struct Scene_Node
     {
 
         /// <summary>
-        /// ÉèÖÃ
+        /// è®¾ç½®
         /// </summary>
         public void Setup(Vector2Int coord_,Vector2 worldPos_)
         {
@@ -22,22 +22,22 @@ namespace AOI
         }
 
         /// <summary>
-        /// Íæ¼ÒÕ¼Î»±ê¼Ç
+        /// ç©å®¶å ä½æ ‡è®°
         /// </summary>
         public bool _has_player;
 
         /// <summary>
-        /// ²»¿ÉÍ¨ĞĞ
+        /// ä¸å¯é€šè¡Œ
         /// </summary>
         public bool _block;
 
         /// <summary>
-        /// Íø¸ñ»¯µØÍ¼×ø±ê
+        /// ç½‘æ ¼åŒ–åœ°å›¾åæ ‡
         /// </summary>
         public Vector2Int Coord { get; private set; }
 
         /// <summary>
-        /// ÊÀ½çÎ»ÖÃ
+        /// ä¸–ç•Œä½ç½®
         /// </summary>
         public Vector2 WorldPos { get; private set; }
     }

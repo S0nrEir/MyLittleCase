@@ -6,7 +6,7 @@ namespace AOI
     public class AOI_Zone
     {
         /// <summary>
-        /// AgentÔÚAOIÇøÓòÄÚÒÆ¶¯
+        /// Agentåœ¨AOIåŒºåŸŸå†…ç§»åŠ¨
         /// </summary>
         public void Move( IAOI_Agent agent_, (int x, int y) from_, (int x, int y) to_, int player_id_, Scene scene_ )
         {
@@ -22,7 +22,7 @@ namespace AOI
                 return;
             }
 
-            //´¦Àí¹Û²ìÕß
+            //å¤„ç†è§‚å¯Ÿè€…
             var watchers = area.GetObserve( player_id_ );
             IAOI_Agent temp_agent = null;
             var iter = watchers.GetEnumerator();
@@ -32,7 +32,7 @@ namespace AOI
                 temp_agent?.Move( agent_ );
             }
 
-            //´¦Àí±»¹Û²ìÕß
+            //å¤„ç†è¢«è§‚å¯Ÿè€…
             watchers = area.GetObserved( player_id_ );
             iter = watchers.GetEnumerator();
             while ( iter.MoveNext() )
@@ -42,24 +42,24 @@ namespace AOI
                     agent_.Move( temp_agent );
 
             }
-            //¼ì²é´©Ô½AOI±ß½ç
+            //æ£€æŸ¥ç©¿è¶ŠAOIè¾¹ç•Œ
             if ( TryGetArea( to_.x, to_.y, out var target_area ) )
             {
                 if ( target_area == area )
                     return;
 
-                //Àë¿ªµ±Ç°AOIÇøÓò£¬½øÈëĞÂµÄAOIÇøÓò
-                //µ±Ç°ÇøÓòleave
+                //ç¦»å¼€å½“å‰AOIåŒºåŸŸï¼Œè¿›å…¥æ–°çš„AOIåŒºåŸŸ
+                //å½“å‰åŒºåŸŸleave
                 Leave( agent_, from_.x, from_.y, player_id_, scene_ );
                 Enter( agent_, to_.x, to_.y, player_id_, scene_ );
             }
         }
-        //µÃÄÃµ½Õâ¸öAOIÇøÓòÄÚµÄËùÓĞ¶ÔÏó²ÅÄÜÖªµÀµ±Íæ¼Ò½øÈëĞÂÇøÓòÊ±£¬ÒªÌí¼ÓÄÄĞ©¹Û²ìÕßºÍ±»¹Û²ìÕß
-        //ÒòÎª¿¼ÂÇµ½Íæ¼Ò²¢²»ÊÇÒªÖ±½ÓÌí¼Ó¸ÃÇøÓòµÄËùÓĞÍæ¼Ò£¬¿ÉÄÜ»áÓĞÒ»Ğ©É¸Ñ¡Ìõ¼ş£¬ÓĞµÄÄÃÓĞµÄ²»ÄÃ£¬
-        //ÁíÍâÕâÑù×öÒ²ÓĞÀûÓÚÀ©Õ¹£¬½¨ÒéÔÚScene´¦Àí¶ÔÏóÒÆ¶¯µÄÊ±ºò¾ÍÈ·¶¨ÒªÌí¼ÓÄÄĞ©¹Û²ìÕß
-        //Ä¿Ç°Ïëµ½µÄ°ì·¨£ºAOI_AreaÌá¹©Ò»¸ö¶ÔÍâ½Ó¿Ú±íÊ¾µ±Ç°ÇøÓòÄÚµÄËùÓĞÍæ¼ÒID
-        //SceneÔÚ×öÂß¼­µÄÊ±ºò£¬ÄÃÕâĞ©ID£¬È»ºó×öÉ¸Ñ¡£¬×÷ÎªÒªÌí¼ÓµÄ¹Û²ìÕß¡£
-        //Èç¹ûÊÇ»ùÓÚ¶ÔÏó×ÔÉíµÄ¾Å¹¬¸ñ·¶Î§µÄ»°£ºÔÚ½øÈëºÍÀë¿ªµÄÊ±ºòÄÃµ½Á½¸ö±È½Ï½á¹ûµÄ²î¼¯£¬×÷Îª½øÈëºÍÀë¿ªÒªÍ¨ÖªµÄ±»¹Û²ìÕßºÍ¹Û²ìÕß
+        //å¾—æ‹¿åˆ°è¿™ä¸ªAOIåŒºåŸŸå†…çš„æ‰€æœ‰å¯¹è±¡æ‰èƒ½çŸ¥é“å½“ç©å®¶è¿›å…¥æ–°åŒºåŸŸæ—¶ï¼Œè¦æ·»åŠ å“ªäº›è§‚å¯Ÿè€…å’Œè¢«è§‚å¯Ÿè€…
+        //å› ä¸ºè€ƒè™‘åˆ°ç©å®¶å¹¶ä¸æ˜¯è¦ç›´æ¥æ·»åŠ è¯¥åŒºåŸŸçš„æ‰€æœ‰ç©å®¶ï¼Œå¯èƒ½ä¼šæœ‰ä¸€äº›ç­›é€‰æ¡ä»¶ï¼Œæœ‰çš„æ‹¿æœ‰çš„ä¸æ‹¿ï¼Œ
+        //å¦å¤–è¿™æ ·åšä¹Ÿæœ‰åˆ©äºæ‰©å±•ï¼Œå»ºè®®åœ¨Sceneå¤„ç†å¯¹è±¡ç§»åŠ¨çš„æ—¶å€™å°±ç¡®å®šè¦æ·»åŠ å“ªäº›è§‚å¯Ÿè€…
+        //ç›®å‰æƒ³åˆ°çš„åŠæ³•ï¼šAOI_Areaæä¾›ä¸€ä¸ªå¯¹å¤–æ¥å£è¡¨ç¤ºå½“å‰åŒºåŸŸå†…çš„æ‰€æœ‰ç©å®¶ID
+        //Sceneåœ¨åšé€»è¾‘çš„æ—¶å€™ï¼Œæ‹¿è¿™äº›IDï¼Œç„¶ååšç­›é€‰ï¼Œä½œä¸ºè¦æ·»åŠ çš„è§‚å¯Ÿè€…ã€‚
+        //å¦‚æœæ˜¯åŸºäºå¯¹è±¡è‡ªèº«çš„ä¹å®«æ ¼èŒƒå›´çš„è¯ï¼šåœ¨è¿›å…¥å’Œç¦»å¼€çš„æ—¶å€™æ‹¿åˆ°ä¸¤ä¸ªæ¯”è¾ƒç»“æœçš„å·®é›†ï¼Œä½œä¸ºè¿›å…¥å’Œç¦»å¼€è¦é€šçŸ¥çš„è¢«è§‚å¯Ÿè€…å’Œè§‚å¯Ÿè€…
         public void Enter( IAOI_Agent agent_, int x_, int y_, int player_id_, Scene scene_ )
         {
             if ( agent_ is null )
@@ -74,13 +74,13 @@ namespace AOI
                 return;
             }
 
-            //´¦Àí¹Û²ìÕßºÍ±»¹Û²ìÕß
-            //ÔİÊ±´¦Àí£ºÌí¼Ó¸ÃÇøÓòÄÚËùÓĞµÄ¶ÔÏó
+            //å¤„ç†è§‚å¯Ÿè€…å’Œè¢«è§‚å¯Ÿè€…
+            //æš‚æ—¶å¤„ç†ï¼šæ·»åŠ è¯¥åŒºåŸŸå†…æ‰€æœ‰çš„å¯¹è±¡
             area.AddAgent( player_id_ );
             var agents = area.GetAllAgents();
             foreach ( var id in agents )
             {
-                //²»Ìí¼Ó×Ô¼º
+                //ä¸æ·»åŠ è‡ªå·±
                 if ( id == player_id_ )
                     continue;
 
@@ -97,10 +97,10 @@ namespace AOI
             }
 
             foreach ( var id in area.GetObserveArray( player_id_ ) )
-                //ÈÃÎÒµÄ¹Û²ìÕß¹Û²ìÎÒ
+                //è®©æˆ‘çš„è§‚å¯Ÿè€…è§‚å¯Ÿæˆ‘
                 area.AddObserving( id, player_id_ );
 
-            //´¦Àí±»¹Û²ìÕß
+            //å¤„ç†è¢«è§‚å¯Ÿè€…
             watchers = area.GetObserved( player_id_ );
             iter = watchers.GetEnumerator();
             while ( iter.MoveNext() )
@@ -125,7 +125,7 @@ namespace AOI
                 return;
             }
 
-            //´¦Àí¹Û²ìÕß
+            //å¤„ç†è§‚å¯Ÿè€…
             var watchers = area.GetObserve( player_id_ );
             IAOI_Agent temp_agent = null;
             var iter = watchers.GetEnumerator();
@@ -135,7 +135,7 @@ namespace AOI
                 temp_agent?.Exit( agent_ );
             }
 
-            //´¦Àí±»¹Û²ìÕß
+            //å¤„ç†è¢«è§‚å¯Ÿè€…
             watchers = area.GetObserved( player_id_ );
             iter = watchers.GetEnumerator();
             while ( iter.MoveNext() )
@@ -151,7 +151,7 @@ namespace AOI
         }
 
         /// <summary>
-        /// ¸ù¾İ×ø±ê»ñÈ¡Ò»¸öArea
+        /// æ ¹æ®åæ ‡è·å–ä¸€ä¸ªArea
         /// </summary>
         public bool TryGetArea( int x_, int y_, out AOI_Area area_ )
         {
@@ -211,7 +211,7 @@ namespace AOI
     }
 
     /// <summary>
-    /// Í¨ÖªÀàĞÍ
+    /// é€šçŸ¥ç±»å‹
     /// </summary>
     internal enum NotifyTypeEnum
     {

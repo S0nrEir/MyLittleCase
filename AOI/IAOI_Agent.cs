@@ -3,17 +3,17 @@ namespace AOI
     public interface IAOI_Agent
     {
         /// <summary>
-        ///  ÆäËûAgent½øÈëAOIÇøÓò
+        ///  å…¶ä»–Agentè¿›å…¥AOIåŒºåŸŸ
         /// </summary>
         public void Enter( IAOI_Agent other_ );
 
         /// <summary>
-        /// ÔÚAOIÇøÓòÄÚÒÆ¶¯
+        /// åœ¨AOIåŒºåŸŸå†…ç§»åŠ¨
         /// </summary>
         public void Move( IAOI_Agent other_ );
 
         /// <summary>
-        /// ÆäËûAgentÀë¿ª¸ÃAOIÇøÓò
+        /// å…¶ä»–Agentç¦»å¼€è¯¥AOIåŒºåŸŸ
         /// </summary>
         public void Exit( IAOI_Agent other_ );
     }
