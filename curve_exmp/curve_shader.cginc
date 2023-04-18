@@ -20,21 +20,21 @@
 //////////////////////////////////////////////////////////////////////////////// 
 void CurvedWorld_ClassicRunner_X_Positive(inout float4 inVertexOS, float3 pivotPoint, float2 bendSize, float2 bendOffset)
 {
-	//±ä»»¶¥µãµ½ÊÀ½ç¿Õ¼äÏÈÆ«ÒÆÃªµã
+	//å˜æ¢é¡¶ç‚¹åˆ°ä¸–ç•Œç©ºé—´å…ˆåç§»é”šç‚¹
     float3 positionWS = CurvedWorld_ObjectToWorld(inVertexOS);
 	positionWS -= pivotPoint;
 
 	//bendOffset.x:verticalOffset y:horizaontalOffset
-	//bendSizeÍ¬Àí
+	//bendSizeåŒç†
 	float2 offset = max(float2(0, 0), positionWS.xx - bendOffset.xy);
 
-	//ÍäÇúÏµÊı£¬Èç¹û²»×ö¸Ä¶¯£¬ÄÇÃ´µ÷Õûsize£¬½á¹û±íÏÖ½«»áÊÇÕÛÏß
-	//ÕâÀïµÄÏòÁ¿Ïà³Ë£¬ÊÇÏòÁ¿µÄÃ¿¸ö·ÖÁ¿¸÷×ÔÏà³Ë£¬²¢²»ÊÇµã³Ë»ò²æ³Ë
-	//ÕâÑù×öµÄÒâÒåÔÚÓÚ£¬Èç¹û²»×ö·ÖÁ¿Ïà³Ë£¬ÄÇÃ´xµÄÆ«ÒÆ¾ÍÊÇ¾ø¶ÔµÄÃ»ÓĞÇúÏßĞ§¹û£¬ÒòÎªoffsetÊÇ¶àÉÙ¾ÍÊÇ¶àÉÙ£¬¶øÏà³Ëºó£¬offset»áËæ×Å×Ô¼ºµÄÖµÔ½´ó¶ø½á¹ûÔ½´ó
+	//å¼¯æ›²ç³»æ•°ï¼Œå¦‚æœä¸åšæ”¹åŠ¨ï¼Œé‚£ä¹ˆè°ƒæ•´sizeï¼Œç»“æœè¡¨ç°å°†ä¼šæ˜¯æŠ˜çº¿
+	//è¿™é‡Œçš„å‘é‡ç›¸ä¹˜ï¼Œæ˜¯å‘é‡çš„æ¯ä¸ªåˆ†é‡å„è‡ªç›¸ä¹˜ï¼Œå¹¶ä¸æ˜¯ç‚¹ä¹˜æˆ–å‰ä¹˜
+	//è¿™æ ·åšçš„æ„ä¹‰åœ¨äºï¼Œå¦‚æœä¸åšåˆ†é‡ç›¸ä¹˜ï¼Œé‚£ä¹ˆxçš„åç§»å°±æ˜¯ç»å¯¹çš„æ²¡æœ‰æ›²çº¿æ•ˆæœï¼Œå› ä¸ºoffsetæ˜¯å¤šå°‘å°±æ˜¯å¤šå°‘ï¼Œè€Œç›¸ä¹˜åï¼Œoffsetä¼šéšç€è‡ªå·±çš„å€¼è¶Šå¤§è€Œç»“æœè¶Šå¤§
 	offset *= offset;
 	positionWS = float3(0.0f, bendSize.x * offset.x, -bendSize.y * offset.y) * 0.001;
 
-	//¶¥µãÆ«ÒÆ
+	//é¡¶ç‚¹åç§»
 	inVertexOS.xyz += CurvedWorld_WorldToObject(float4(positionWS, 0), 0);
 }
 
