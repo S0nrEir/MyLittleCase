@@ -375,7 +375,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 15c38f6fa1940124db1ab7f6fe7268d1, type: 3}
-  m_Name: Signal Emitter
+  m_Name: Signal_Emitter_1
   m_EditorClassIdentifier: 
   m_Time: 4
   m_Retroactive: 0
@@ -777,12 +777,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 15c38f6fa1940124db1ab7f6fe7268d1, type: 3}
-  m_Name: Signal Emitter
+  m_Name: Signal_Emitter_2
   m_EditorClassIdentifier: 
   m_Time: 6.966666666666667
   m_Retroactive: 0
   m_EmitOnce: 0
-  m_Asset: {fileID: 11400000, guid: 209f3d6aab9577146b0755e3d3234cc4, type: 2}
+  m_Asset: {fileID: 11400000, guid: 5995760e11e870541a993b650ed88223, type: 2}
 --- !u!114 &6718032507995179093
 MonoBehaviour:
   m_ObjectHideFlags: 1

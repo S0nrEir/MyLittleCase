@@ -202,12 +202,27 @@ MonoBehaviour:
   m_Events:
     m_Signals:
     - {fileID: 11400000, guid: 209f3d6aab9577146b0755e3d3234cc4, type: 2}
+    - {fileID: 11400000, guid: 5995760e11e870541a993b650ed88223, type: 2}
     m_Events:
     - m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: 595121864}
           m_TargetAssemblyTypeName: Timeline.SignalReceiver, Assembly-CSharp
           m_MethodName: OnReceiveSignal_1
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+    - m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 595121864}
+          m_TargetAssemblyTypeName: Timeline.SignalReceiver, Assembly-CSharp
+          m_MethodName: OnReceiveSignal_2
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
