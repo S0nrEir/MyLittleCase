@@ -6,6 +6,7 @@ using UnityEngine.Timeline;
 
 namespace Timeline
 {
+    //PlayableAsset表示所有Playable资源的数据来源（当然也包括timeline的）
     public class MoveObjPlayableAsset : PlayableAsset
     {
         public override UnityEngine.Playables.Playable CreatePlayable( PlayableGraph graph, GameObject owner )
