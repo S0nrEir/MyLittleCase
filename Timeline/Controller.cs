@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.Playables;
+using UnityEngine.Timeline;
 
 namespace Timeline
 {
@@ -15,17 +17,66 @@ namespace Timeline
         // Start is called before the first frame update
         void Start()
         {
-            _source.Play();
+            //_source.Play();
+            if ( _director.playableAsset == null || _director.playableAsset is not TimelineAsset)
+                return;
+
+            var timeline = _director.playableAsset as TimelineAsset;
+            foreach ( var track in timeline.GetOutputTracks() )
+            {
+                if ( !track.name.Equals( "CustomTrack" ) )
+                    continue;
+
+                foreach ( var clip in track.GetClips() )
+                {
+                    if ( clip.asset is not MoveObjPlayableAsset )
+                        continue;
+
+                    var asset = clip.asset as MoveObjPlayableAsset;
+                    asset.go = _director_cube;
+                    asset._startPos = new Vector3( -19.0100002f, 7.48000813f, 13.75f );
+                    asset._targetPos = new Vector3( 50f, 50f, 0 );
+                    asset._duration = 5f;
+                }
+            }
+
+            #region nouse
+            //foreach ( var binding in timeline.outputs )
+            //{
+            //    //找到相应的轨道
+            //    var trackName = binding.streamName;
+            //    if ( trackName.Equals( "CustomTrack" ) )
+            //    {
+            //        //找到轨道上所有的片段，并且将对应的片段转成想要的
+            //        var track = binding.sourceObject as TrackAsset;
+            //        var clips = track.GetClips();
+            //        foreach ( var clip in clips )
+            //        {
+            //            if ( clip.asset is MoveObjPlayableAsset)
+            //            {
+            //                var asset = clip.asset as MoveObjPlayableAsset;
+            //                asset.go = _director_cube;
+            //                asset.pos = new Vector3( 100f, 100f, 0 );
+
+            //                break;
+            //            }
+            //        }
+            //    }
+            //}
+            #endregion
+            _director.Play();
         }
 
         private void Update()
         {
-            if ( Input.GetKeyDown( KeyCode.P ) )
-                _source.PlayOneShot(_clip);
+            //if ( Input.GetKeyDown( KeyCode.P ) )
+            //    _source.PlayOneShot(_clip);
         }
 
         [SerializeField] private AudioSource _source = null;
         [SerializeField] private AudioClip _clip = null;
+        [SerializeField] private PlayableDirector _director = null;
+        [SerializeField] private GameObject _director_cube = null;
     }
 }
 
