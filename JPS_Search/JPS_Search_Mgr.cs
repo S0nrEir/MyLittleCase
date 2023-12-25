@@ -39,6 +39,9 @@ namespace JPS
             //jpList.AddRange( _biasCacheList );
         }
 
+        /// <summary>
+        /// 尝试获取直线跳点
+        /// </summary>
         private JPS_Node GetStraightLineJP ( JPS_Node node, Vector2Int direction, bool AddSelf )
         {
             if (direction == Vector2Int.zero)
@@ -205,6 +208,9 @@ namespace JPS
         }
         #endregion
 
+        /// <summary>
+        /// 获取直线跳点
+        /// </summary>
         private void GetStraightLineJP (List<JPS_Node> jpList,JPS_Node node,Vector2Int direction,bool AddSelf)
         {
             if (jpList is null)
@@ -249,6 +255,9 @@ namespace JPS
             }
         }
 
+        /// <summary>
+        /// 获取斜线方向的跳点
+        /// </summary>
         private void GetBiasLineJP ( List<JPS_Node> jpList, JPS_Node node, Vector2Int biasDirection )
         {
             //分解方向
@@ -755,9 +764,18 @@ namespace JPS
         None
     }
 
+    /// <summary>
+    /// 扫描方向
+    /// </summary>
     public enum TileScanDirection
     {
+        /// <summary>
+        /// 直线
+        /// </summary>
         Straight,
+        /// <summary>
+        /// 斜线
+        /// </summary>
         Bias,
         None
     }

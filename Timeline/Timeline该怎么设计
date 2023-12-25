@@ -1,0 +1,14 @@
+总时长
+动画->动画时长
+音效资源->播放时间
+打击点->触发时间，effect施加时间
+震屏（？）
+
+每个角色写死，habeviour单独写逻辑
+
+动画组件播放：拿到PlayableDirector直接播放对应的asset，asset直接加载，然后保存到对象池缓存里
+	动画组件：Addon_Anim->通过Addon_Anim来播放
+
+
+
+

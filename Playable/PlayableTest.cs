@@ -5,7 +5,7 @@ using UnityEngine.Playables;
 namespace Playable
 {
     /// <summary>
-    ///  ²âÊÔPlayable
+    ///  æµ‹è¯•Playable
     /// </summary>
     public class PlayableTest : MonoBehaviour
     {
@@ -14,7 +14,7 @@ namespace Playable
         }
 
         /// <summary>
-        /// Ä¬ÈÏÑİÊ¾
+        /// é»˜è®¤æ¼”ç¤º
         ///    PlayableGraph
         ///         |
         ///   AnimationPlayableOutput
@@ -23,41 +23,41 @@ namespace Playable
         /// </summary>
         private void Default()
         {
-            //´´½¨playableGraph
+            //åˆ›å»ºplayableGraph
             _graph = PlayableGraph.Create( "default_playable_graph" );
             _graph.SetTimeUpdateMode( DirectorUpdateMode.GameTime );
-            //ÒòÎªĞèÒª²¥·Å¶¯»­£¬ËùÒÔÒªÏògraphÖĞÌí¼ÓAnimationPlayableOutput
+            //å› ä¸ºéœ€è¦æ’­æ”¾åŠ¨ç”»ï¼Œæ‰€ä»¥è¦å‘graphä¸­æ·»åŠ AnimationPlayableOutput
             var animation_output_playable = AnimationPlayableOutput.Create( _graph, "animation_playable_output", _animator );
-            //½ÓÏÂÀ´Ìí¼ÓPlayable½Úµã£¬ÒòÎª²»Éæ¼°µ½»ìºÏºÍ·Ö²ã£¬ËùÒÔÖ»ĞèÒªÌí¼ÓÒ»¸ö¼òµ¥µÄAnimationClipPlayable
+            //æ¥ä¸‹æ¥æ·»åŠ PlayableèŠ‚ç‚¹ï¼Œå› ä¸ºä¸æ¶‰åŠåˆ°æ··åˆå’Œåˆ†å±‚ï¼Œæ‰€ä»¥åªéœ€è¦æ·»åŠ ä¸€ä¸ªç®€å•çš„AnimationClipPlayable
             var clip_idle_playable = AnimationClipPlayable.Create( _graph, _walke_clip );
-            //´´½¨ÁËplayableOutputºÍplayableºó£¬½«ËûÃÇ¹ØÁªÆğÀ´
+            //åˆ›å»ºäº†playableOutputå’Œplayableåï¼Œå°†ä»–ä»¬å…³è”èµ·æ¥
             animation_output_playable.SetSourcePlayable( clip_idle_playable );
 
-            //¿ªÊ¼²¥·Å
+            //å¼€å§‹æ’­æ”¾
             _graph.Play();
 
-            //Ò²¿ÉÒÔÓÃÕâÑùµÄ·½Ê½Ò»ĞĞÍê³É
+            //ä¹Ÿå¯ä»¥ç”¨è¿™æ ·çš„æ–¹å¼ä¸€è¡Œå®Œæˆ
             AnimationPlayableUtilities.PlayClip( _animator, _walke_clip, out _graph );
         }
 
         /// <summary>
-        /// Ê¹ÓÃBlendTreeµÄ¶¯»­¹ı¶É
-        /// PlayableGraph->AnimationPlayableOutput->MixerPlayable³ÖÓĞÒª»ìºÏµÄclip£¬Í¨¹ıgraph.ConnectÁ¬½Ó
+        /// ä½¿ç”¨BlendTreeçš„åŠ¨ç”»è¿‡æ¸¡
+        /// PlayableGraph->AnimationPlayableOutput->MixerPlayableæŒæœ‰è¦æ··åˆçš„clipï¼Œé€šè¿‡graph.Connectè¿æ¥
         /// </summary>
         private void BlendTransition()
         {
             _graph = PlayableGraph.Create( "default_playable_graph" );
-            //Ê¹ÓÃAnimationMixerPlayerÊµÏÖBlendTree
-            //µÚ¶ş¸ö²ÎÊı±íÊ¾Òª½«¼¸¸ö¶¯»­½øĞĞ»ìºÏ
+            //ä½¿ç”¨AnimationMixerPlayerå®ç°BlendTree
+            //ç¬¬äºŒä¸ªå‚æ•°è¡¨ç¤ºè¦å°†å‡ ä¸ªåŠ¨ç”»è¿›è¡Œæ··åˆ
             _mixer_playable = AnimationMixerPlayable.Create( _graph, 2 );
-            //´´½¨ÅÜºÍ×ßµÄanimation
+            //åˆ›å»ºè·‘å’Œèµ°çš„animation
             var walk_clip_playable = AnimationClipPlayable.Create( _graph, _walke_clip );
             walk_clip_playable.SetSpeed( _walke_clip.length );
 
             var run_clip_playable = AnimationClipPlayable.Create( _graph, _run_clip );
             run_clip_playable.SetSpeed( _run_clip.length );
 
-            //connectº¯ÊıÁ¬½ÓÁ½¸öplayableÊµÀı£¬
+            //connectå‡½æ•°è¿æ¥ä¸¤ä¸ªplayableå®ä¾‹ï¼Œ
             _graph.Connect( walk_clip_playable, 0, _mixer_playable, 0 );
             _graph.Connect( run_clip_playable, 0, _mixer_playable, 1 );
 
@@ -76,15 +76,15 @@ namespace Playable
         }
 
         /// <summary>
-        /// ¶¯»­·Ö²ã»ìºÏ£¬ÓÃÓÚÊµÏÖ²»Í¬²¿Î»µÄ¸´ÔÓ¶¯»­×éºÏ£¬±ÈÈçÉÏ°ëÉí¿ªÇ¹£¬ÏÂ°ëÉíÒÆ¶¯
+        /// åŠ¨ç”»åˆ†å±‚æ··åˆï¼Œç”¨äºå®ç°ä¸åŒéƒ¨ä½çš„å¤æ‚åŠ¨ç”»ç»„åˆï¼Œæ¯”å¦‚ä¸ŠåŠèº«å¼€æªï¼Œä¸‹åŠèº«ç§»åŠ¨
         /// </summary>
         private void LayerMixPlayable()
         {
             _graph = PlayableGraph.Create( "default_playable_graph" );
             var animation_output_playable = AnimationPlayableOutput.Create( _graph, "animation_output_playable", _animator );
-            //´´½¨Ò»¸ö¶¯»­»ìºÏµÄplayable,´«ÈëÁ½¸öÒª»ìºÏµÄ¶¯»­
+            //åˆ›å»ºä¸€ä¸ªåŠ¨ç”»æ··åˆçš„playable,ä¼ å…¥ä¸¤ä¸ªè¦æ··åˆçš„åŠ¨ç”»
             var layer_mixer_playable = AnimationLayerMixerPlayable.Create( _graph, 2 );
-            //´´½¨Á½¸ö¶¯»­
+            //åˆ›å»ºä¸¤ä¸ªåŠ¨ç”»
             var walk_clip_playable = AnimationClipPlayable.Create( _graph, _walke_clip );
             var eye_clip_playable = AnimationClipPlayable.Create( _graph, _eye_clip );
 
@@ -92,12 +92,12 @@ namespace Playable
             _graph.Connect( eye_clip_playable, 0, layer_mixer_playable, 1 );
 
             animation_output_playable.SetSourcePlayable( layer_mixer_playable );
-            //Ìí¼ÓÒ»¸ö¹Ç÷Àmask£¬¸ù¾İ¶ÔÓ¦µÄ¹Ç÷ÀtransformÆÁ±ÎÆäËûlayerµÄ¶¯»­
+            //æ·»åŠ ä¸€ä¸ªéª¨éª¼maskï¼Œæ ¹æ®å¯¹åº”çš„éª¨éª¼transformå±è”½å…¶ä»–layerçš„åŠ¨ç”»
             var mask = new AvatarMask();
             mask.AddTransformPath( _head );
-            //ÉèÖÃÑÛ²¿¶¯»­µ½¶ÔÓ¦µÄmask
+            //è®¾ç½®çœ¼éƒ¨åŠ¨ç”»åˆ°å¯¹åº”çš„mask
             layer_mixer_playable.SetLayerMaskFromAvatarMask( 1, mask );
-            //·Ö±ğÉèÖÃÁ½¸ö¶¯»­£¨Á½²ã£©µÄÈ¨ÖØ
+            //åˆ†åˆ«è®¾ç½®ä¸¤ä¸ªåŠ¨ç”»ï¼ˆä¸¤å±‚ï¼‰çš„æƒé‡
             layer_mixer_playable.SetInputWeight( 0, 1 );
             layer_mixer_playable.SetInputWeight( 1, 1f );
             _graph.Play();
@@ -105,11 +105,11 @@ namespace Playable
 
         private void BlendTransitionUpdate()
         {
-            //SetInputWeightº¯ÊıÉè¶¨Ã¿¸ö¶Ë¿ÚÉÏµÄÈ¨ÖØÖµ£¬Òª×¢ÒâµÄÊÇËùÓĞ¶Ë¿ÚÈ¨ÖØÖ®ºÍ²»ÄÜ´óÓÚ1
-            //0ÊÇwalk
+            //SetInputWeightå‡½æ•°è®¾å®šæ¯ä¸ªç«¯å£ä¸Šçš„æƒé‡å€¼ï¼Œè¦æ³¨æ„çš„æ˜¯æ‰€æœ‰ç«¯å£æƒé‡ä¹‹å’Œä¸èƒ½å¤§äº1
+            //0æ˜¯walk
             //_graph.Connect( walk_clip_playable, 0, _mixer_playable, 0 );
             _mixer_playable.SetInputWeight( 0, 1f - _weight );
-            //1ÊÇrun
+            //1æ˜¯run
             //_graph.Connect( run_clip_playable, 0, _mixer_playable, 1 );
             _mixer_playable.SetInputWeight( 1, _weight );
 
@@ -150,7 +150,7 @@ namespace Playable
 
             //Default();
 
-            //¶¯»­»ìºÏÊ÷µÄ¹ı¶É
+            //åŠ¨ç”»æ··åˆæ ‘çš„è¿‡æ¸¡
             //BlendTransition();
             LayerMixPlayable();
         }
@@ -163,7 +163,7 @@ namespace Playable
         }
 
         /// <summary>
-        /// ¶¯»­È¨ÖØ
+        /// åŠ¨ç”»æƒé‡
         /// </summary>
         [Range( 0, 1 )]
         [SerializeField] private float _weight = 1f;
@@ -178,8 +178,8 @@ namespace Playable
         private AnimationMixerPlayable _mixer_playable;
 
         /// <summary>
-        /// playable graph¿ÉÒÔ¿´³ÉÊÇanimator»òmananger£¬Ò»¸öplayableGraph±ØĞë°üº¬PlayableOutput£¬²¢ÇÒ
-        /// PlayableOutput±ØĞëÁ¬½ÓÖÁPlayable²ÅÄÜÉúĞ§£¬³öÓÚĞÔÄÜ¿¼ÂÇ£¬playableGraph¶¼ÊÇ½á¹¹Ìå¡£
+        /// playable graphå¯ä»¥çœ‹æˆæ˜¯animatoræˆ–manangerï¼Œä¸€ä¸ªplayableGraphå¿…é¡»åŒ…å«PlayableOutputï¼Œå¹¶ä¸”
+        /// PlayableOutputå¿…é¡»è¿æ¥è‡³Playableæ‰èƒ½ç”Ÿæ•ˆï¼Œå‡ºäºæ€§èƒ½è€ƒè™‘ï¼ŒplayableGraphéƒ½æ˜¯ç»“æ„ä½“ã€‚
         /// </summary>
         private PlayableGraph _graph;
         [SerializeField] private Animator _animator = null;

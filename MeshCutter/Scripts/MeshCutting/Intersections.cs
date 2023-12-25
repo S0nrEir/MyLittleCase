@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ±íÊ¾Ò»¸öÈı½ÇÃæÊÇ·ñºÍÇĞ¸îÏßÏà½»µÄÀà
+/// è¡¨ç¤ºä¸€ä¸ªä¸‰è§’é¢æ˜¯å¦å’Œåˆ‡å‰²çº¿ç›¸äº¤çš„ç±»
 /// </summary>
 public class Intersections
 {
@@ -11,7 +11,7 @@ public class Intersections
 
     /// <summary>
     /// Based on https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html
-    /// Í¨¹ıaabb°üÎ§ºĞ¼ì²éplaneºÍmeshÊÇ·ñÏà½»
+    /// é€šè¿‡aabbåŒ…å›´ç›’æ£€æŸ¥planeå’Œmeshæ˜¯å¦ç›¸äº¤
     /// </summary>
     public static bool BoundPlaneIntersect(Mesh mesh, ref Plane plane)
     {
@@ -33,12 +33,12 @@ public class Intersections
     private readonly Vector3[] v;
     private readonly Vector2[] u;
     /// <summary>
-    /// ¶¥µãË÷Òı
+    /// é¡¶ç‚¹ç´¢å¼•
     /// </summary>
     private readonly int[] t;
 
     /// <summary>
-    /// ±íÊ¾Èı½ÇĞÎµÄ¶¥µãÔÚpositive»¹ÊÇnegativeÖĞ
+    /// è¡¨ç¤ºä¸‰è§’å½¢çš„é¡¶ç‚¹åœ¨positiveè¿˜æ˜¯negativeä¸­
     /// </summary>
     private readonly bool[] positive;
 
@@ -58,22 +58,22 @@ public class Intersections
     /// </summary>
     public ValueTuple<Vector3, Vector2> Intersect
         (
-            Plane plane, //ÇĞ¸îÃæ
-            Vector3 first, //ÇĞ¸îµã
-            Vector3 second, //Ç°Ò»¸öµã
-            Vector2 uv1, //ÇĞ¸îµã¶ÔÓ¦µÄUV
-            Vector2 uv2 //Ç°Ò»¸öµã¶ÔÓ¦µÄUV
+            Plane plane, //åˆ‡å‰²é¢
+            Vector3 first, //åˆ‡å‰²ç‚¹
+            Vector3 second, //å‰ä¸€ä¸ªç‚¹
+            Vector2 uv1, //åˆ‡å‰²ç‚¹å¯¹åº”çš„UV
+            Vector2 uv2 //å‰ä¸€ä¸ªç‚¹å¯¹åº”çš„UV
         )
     {
-        //ÉèÖÃÒ»Ìõ´ÓÇĞ¸îµã(lonelyPoint)µ½ËüÇ°Ò»¸öµãµÄÉäÏß
+        //è®¾ç½®ä¸€æ¡ä»åˆ‡å‰²ç‚¹(lonelyPoint)åˆ°å®ƒå‰ä¸€ä¸ªç‚¹çš„å°„çº¿
         edgeRay.origin = first;
         edgeRay.direction = (second - first).normalized;
 
-        //ÉäÏßµ½Æ½ÃæµÄ¾àÀë
+        //å°„çº¿åˆ°å¹³é¢çš„è·ç¦»
         float dist;
         float maxDist = Vector3.Distance(first, second);
 
-        //ÉäÏßÊÇ·ñÓëÆ½ÃæÏà½»
+        //å°„çº¿æ˜¯å¦ä¸å¹³é¢ç›¸äº¤
         if (!plane.Raycast(edgeRay, out dist))
             // Intersect in wrong direction...
             throw new UnityException("Line-Plane intersect in wrong direction");
@@ -83,12 +83,12 @@ public class Intersections
 
         var returnVal = new ValueTuple<Vector3, Vector2>
         {
-            //ÄÃµ½ÉäÏß´òÔÚÆ½ÃæÉÏµÄµã£¬Õâ×÷ÎªÇĞ¸îµãµÄµÚÒ»¸öÆğÊ¼µã
+            //æ‹¿åˆ°å°„çº¿æ‰“åœ¨å¹³é¢ä¸Šçš„ç‚¹ï¼Œè¿™ä½œä¸ºåˆ‡å‰²ç‚¹çš„ç¬¬ä¸€ä¸ªèµ·å§‹ç‚¹
             Item1 = edgeRay.GetPoint(dist)
         };
 
         var relativeDist = dist / maxDist;
-        //¸ù¾İÇĞ¸îµãµ½ÁÙ½üµãµÄ¾àÀëÈ¡°Ù·Ö±È£¬×ö²åÖµ£¬×÷ÎªÖØĞÂÓ³ÉäÎÆÀíµÄÒÀ¾İ
+        //æ ¹æ®åˆ‡å‰²ç‚¹åˆ°ä¸´è¿‘ç‚¹çš„è·ç¦»å–ç™¾åˆ†æ¯”ï¼Œåšæ’å€¼ï¼Œä½œä¸ºé‡æ–°æ˜ å°„çº¹ç†çš„ä¾æ®
         returnVal.Item2.x = Mathf.Lerp(uv1.x, uv2.x, relativeDist);
         returnVal.Item2.y = Mathf.Lerp(uv1.y, uv2.y, relativeDist);
         return returnVal;
@@ -107,48 +107,48 @@ public class Intersections
      *       |___________________
      */
     /// <summary>
-    /// ¼ì²éÈı½ÇÃæÊÇ·ñÓëÆ½ÃæÏà½»
+    /// æ£€æŸ¥ä¸‰è§’é¢æ˜¯å¦ä¸å¹³é¢ç›¸äº¤
     /// </summary>
     public bool TrianglePlaneIntersect(List<Vector3> vertices, List<Vector2> uvs, List<int> triangles, int startIdx, ref Plane plane, TempMesh posMesh, TempMesh negMesh, Vector3[] intersectVectors)
     {
         // Store triangle, vertex and uv from indices
-        //±£´æÒª·ÖÀëµÄmeshµÄÒ»¸öÈı½ÇĞÎ°üº¬µÄ¶¥µãºÍÌùÍ¼
+        //ä¿å­˜è¦åˆ†ç¦»çš„meshçš„ä¸€ä¸ªä¸‰è§’å½¢åŒ…å«çš„é¡¶ç‚¹å’Œè´´å›¾
         for(var i = 0; i < 3; ++i)
         {
-            //±£´æÈı½ÇÃæ¶¥µãË÷Òı
+            //ä¿å­˜ä¸‰è§’é¢é¡¶ç‚¹ç´¢å¼•
             t[i] = triangles[startIdx + i];
-            //±£´æ±£´æÈı½ÇÃæË÷Òı¶ÔÓ¦µÄ¶¥µã
+            //ä¿å­˜ä¿å­˜ä¸‰è§’é¢ç´¢å¼•å¯¹åº”çš„é¡¶ç‚¹
             v[i] = vertices[t[i]];
-            //±£´æ¶ÔÓ¦µÄUV
+            //ä¿å­˜å¯¹åº”çš„UV
             u[i] = uvs[t[i]];
         }
 
         // Store wether the vertex is on positive mesh
-        //²»¹Ü¶¥µãÊÇ·ñ´¦ÓÚÕıÃæ£¬¶¼½«Æä±£´æ
-        //ÉèÖÃ²¢ÇÒ»ñÈ¡Ô´meshÄ³¸öÈı½ÇĞÎÊÇ·ñ´¦ÓÚÇĞ¸îµÄpositive meshÖĞ£¬Èç¹û²»ÔÚ£¬ÄÇÃ´¾ÍÔÚnegative meshÖĞ
-        //Ò»¸öÈı½ÇĞÎÈç¹û±»·Ö¸îºó£¬ÆäÖĞ±Ø¶¨ÓĞÒ»¸ö¶¥µãºÍµ±Ç°µÄÇĞ¸îmesh·ÖÀë£¬
-        //ÔÚÖ®Ç°µÄ²½ÖèÖĞÍ¨¹ı¼ì²éµãµ½ÇĞÃæµÄ¾àÀëÀ´ÅĞ¶ÏÒ»¸öµãÊôÓÚpositive mesh»¹ÊÇnegative mesh£¬
-        //ÔÚÓĞÈı½ÇĞÎ±»ÇĞ¸îµÄÇé¿öÏÂ£¬Á½¸öÇĞ¸îmeshÄÚ²¿·Ö±ğ±£´æÁË»®·Öµ½×Ô¼ºµÄ¶¥µã¼¯ºÏ(AddVertex)£¬
-        //ÔÚÕâÀï½«Ô´meshµÄÈı½ÇĞÎºÍ¶¥µã¸øÈë£¬¾Í¿ÉÒÔ¼ì²éÈı½ÇĞÎµÄÒ»¸ö¶¥µãÊÇ·ñÔÚ¸ÃÇĞ¸îmeshÖĞ£¨positive»ònagetive£©
-        //¼òµ¥À´Ëµ£¬¾ÍÊÇÔÚaddVertexµÄÊ±ºò£¬Á½¸öÇĞ¸îmesh·Ö±ğ±£´æ×Ô¼º±»»®·Öµ½×Ô¼ºÕâÒ»ÃæµÄ¶¥µãºÍÔÚÔ´meshÖĞ¶ÔÓ¦µÄÈı½ÇÍø¸ñË÷ÒıÎ»ÖÃ
-        //#todoÕâÀï¸Ä³É×Ô¼ºµÄÊµÏÖ·½°¸ÊÔÊÔ£¿
+        //ä¸ç®¡é¡¶ç‚¹æ˜¯å¦å¤„äºæ­£é¢ï¼Œéƒ½å°†å…¶ä¿å­˜
+        //è®¾ç½®å¹¶ä¸”è·å–æºmeshæŸä¸ªä¸‰è§’å½¢æ˜¯å¦å¤„äºåˆ‡å‰²çš„positive meshä¸­ï¼Œå¦‚æœä¸åœ¨ï¼Œé‚£ä¹ˆå°±åœ¨negative meshä¸­
+        //ä¸€ä¸ªä¸‰è§’å½¢å¦‚æœè¢«åˆ†å‰²åï¼Œå…¶ä¸­å¿…å®šæœ‰ä¸€ä¸ªé¡¶ç‚¹å’Œå½“å‰çš„åˆ‡å‰²meshåˆ†ç¦»ï¼Œ
+        //åœ¨ä¹‹å‰çš„æ­¥éª¤ä¸­é€šè¿‡æ£€æŸ¥ç‚¹åˆ°åˆ‡é¢çš„è·ç¦»æ¥åˆ¤æ–­ä¸€ä¸ªç‚¹å±äºpositive meshè¿˜æ˜¯negative meshï¼Œ
+        //åœ¨æœ‰ä¸‰è§’å½¢è¢«åˆ‡å‰²çš„æƒ…å†µä¸‹ï¼Œä¸¤ä¸ªåˆ‡å‰²meshå†…éƒ¨åˆ†åˆ«ä¿å­˜äº†åˆ’åˆ†åˆ°è‡ªå·±çš„é¡¶ç‚¹é›†åˆ(AddVertex)ï¼Œ
+        //åœ¨è¿™é‡Œå°†æºmeshçš„ä¸‰è§’å½¢å’Œé¡¶ç‚¹ç»™å…¥ï¼Œå°±å¯ä»¥æ£€æŸ¥ä¸‰è§’å½¢çš„ä¸€ä¸ªé¡¶ç‚¹æ˜¯å¦åœ¨è¯¥åˆ‡å‰²meshä¸­ï¼ˆpositiveæˆ–nagetiveï¼‰
+        //ç®€å•æ¥è¯´ï¼Œå°±æ˜¯åœ¨addVertexçš„æ—¶å€™ï¼Œä¸¤ä¸ªåˆ‡å‰²meshåˆ†åˆ«ä¿å­˜è‡ªå·±è¢«åˆ’åˆ†åˆ°è‡ªå·±è¿™ä¸€é¢çš„é¡¶ç‚¹å’Œåœ¨æºmeshä¸­å¯¹åº”çš„ä¸‰è§’ç½‘æ ¼ç´¢å¼•ä½ç½®
+        //#todoè¿™é‡Œæ”¹æˆè‡ªå·±çš„å®ç°æ–¹æ¡ˆè¯•è¯•ï¼Ÿ
         posMesh.ContainsKeys(triangles, startIdx, positive);
 
         // If they're all on the same side, don't do intersection
-        //Ô´meshÈı½ÇÃæµÄËùÓĞ¶¥µã¶¼ÔÚÍ¬Ò»¸öÇĞ¸îmeshÖĞ£¬ÕâËµÃ÷Õâ¸öÈı½ÇÃæÃ»ÓĞ±»ÇĞ¸î£¬Ëü¿ÉÄÜ¶¼ÔÚposMesh»ònegativeMeshÖĞ
+        //æºmeshä¸‰è§’é¢çš„æ‰€æœ‰é¡¶ç‚¹éƒ½åœ¨åŒä¸€ä¸ªåˆ‡å‰²meshä¸­ï¼Œè¿™è¯´æ˜è¿™ä¸ªä¸‰è§’é¢æ²¡æœ‰è¢«åˆ‡å‰²ï¼Œå®ƒå¯èƒ½éƒ½åœ¨posMeshæˆ–negativeMeshä¸­
         if (positive[0] == positive[1] && positive[1] == positive[2])
         {
             // All points are on the same side. No intersection
             // Add them to either positive or negative mesh
-            //#todoÌí¼Ó¸ÃÈı½ÇÃæ
-            //×ßµ½ÕâÀïËµÃ÷Õâ¸öÈı½ÇÃæ²»ÊÇ±»ÇĞ¸îµÄÈı½ÇÃæ
+            //#todoæ·»åŠ è¯¥ä¸‰è§’é¢
+            //èµ°åˆ°è¿™é‡Œè¯´æ˜è¿™ä¸ªä¸‰è§’é¢ä¸æ˜¯è¢«åˆ‡å‰²çš„ä¸‰è§’é¢
             (positive[0] ? posMesh : negMesh).AddOgTriangle(t);
             return false;
         }
 
         // Find lonely point
-        //ÕÒ³ö±»ÇĞ¸îµÄµãÔÚÈı½ÇĞÎË÷ÒıµÄµÚ¼¸¸öÎ»ÖÃ£¬ÕâÀï¼ÇÂ¼µÄ¶¼ÊÇËûÃÇÔÚÔ­Èı½ÇÃæÖĞµÄË³ĞòÎ»ÖÃ£¬¶ø·ÇË÷Òı
-        //ËùÒÔlonelyPoint PrevPoint nextPointÕâÈı¸ö±äÁ¿¼ÇÂ¼µÄĞÅÏ¢ÓÀÔ¶ÊÇ0£¬1£¬2£¬Ö»ÊÇË³Ğò¿ÉÄÜ²»Ò»Ñù
+        //æ‰¾å‡ºè¢«åˆ‡å‰²çš„ç‚¹åœ¨ä¸‰è§’å½¢ç´¢å¼•çš„ç¬¬å‡ ä¸ªä½ç½®ï¼Œè¿™é‡Œè®°å½•çš„éƒ½æ˜¯ä»–ä»¬åœ¨åŸä¸‰è§’é¢ä¸­çš„é¡ºåºä½ç½®ï¼Œè€Œéç´¢å¼•
+        //æ‰€ä»¥lonelyPoint PrevPoint nextPointè¿™ä¸‰ä¸ªå˜é‡è®°å½•çš„ä¿¡æ¯æ°¸è¿œæ˜¯0ï¼Œ1ï¼Œ2ï¼Œåªæ˜¯é¡ºåºå¯èƒ½ä¸ä¸€æ ·
         int lonelyPoint = 0;
         if (positive[0] != positive[1])
             lonelyPoint = positive[0] != positive[2] ? 0 : 1;
@@ -156,24 +156,24 @@ public class Intersections
             lonelyPoint = 2;
 
         // Set previous point in relation to front face order
-        //ÉèÖÃÇĞ¸îµãµÄÉÏÒ»¸ö¹ØÁª¶¥µã
+        //è®¾ç½®åˆ‡å‰²ç‚¹çš„ä¸Šä¸€ä¸ªå…³è”é¡¶ç‚¹
         int prevPoint = lonelyPoint - 1;
         if (prevPoint == -1) 
             prevPoint = 2;
 
         // Set next point in relation to front face order
-        //ÉèÖÃÇĞ¸îµãµÄÏÂÒ»¸ö¹ØÁª¶¥µã
+        //è®¾ç½®åˆ‡å‰²ç‚¹çš„ä¸‹ä¸€ä¸ªå…³è”é¡¶ç‚¹
         int nextPoint = lonelyPoint + 1;
         if (nextPoint == 3)
             nextPoint = 0;
 
         // Get the 2 intersection points
-        // ÕÒ³öÇĞ¸îÏßºÍÈı½ÇÃæÏà½»µÄÁ½¸öµã(I1ºÍI2Á½¸öµã)
+        // æ‰¾å‡ºåˆ‡å‰²çº¿å’Œä¸‰è§’é¢ç›¸äº¤çš„ä¸¤ä¸ªç‚¹(I1å’ŒI2ä¸¤ä¸ªç‚¹)
         ValueTuple<Vector3, Vector2> newPointPrev = Intersect(plane, v[lonelyPoint], v[prevPoint], u[lonelyPoint], u[prevPoint]);
         ValueTuple<Vector3, Vector2> newPointNext = Intersect(plane, v[lonelyPoint], v[nextPoint], u[lonelyPoint], u[nextPoint]);
 
         //Set the new triangles and store them in respective tempmeshes
-        //¼ì²éÇĞ¸îµãÊÇpositive»¹ÊÇnegative£¬½«¶ÔÓ¦µÄĞÂÈı½ÇÃæµÄÁíÍâÁ½¸ö¶¥µãÌí¼Ó½ø¶ÔÓ¦µÄtempMeshÖĞ
+        //æ£€æŸ¥åˆ‡å‰²ç‚¹æ˜¯positiveè¿˜æ˜¯negativeï¼Œå°†å¯¹åº”çš„æ–°ä¸‰è§’é¢çš„å¦å¤–ä¸¤ä¸ªé¡¶ç‚¹æ·»åŠ è¿›å¯¹åº”çš„tempMeshä¸­
         (positive[lonelyPoint] ? posMesh : negMesh).AddSlicedTriangle(t[lonelyPoint], newPointNext.Item1, newPointPrev.Item1, newPointNext.Item2, newPointPrev.Item2);
 
         (positive[prevPoint] ? posMesh : negMesh).AddSlicedTriangle(t[prevPoint], newPointPrev.Item1, newPointPrev.Item2, t[nextPoint]);

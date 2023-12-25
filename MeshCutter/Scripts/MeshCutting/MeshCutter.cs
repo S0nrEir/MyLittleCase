@@ -44,48 +44,48 @@ public class MeshCutter
     /// We assume the plane is already in the mesh's local coordinate frame
     /// Returns posMesh and negMesh, which are the resuling meshes on both sides of the plane 
     /// (posMesh on the same side as the plane's normal, negMesh on the opposite side)
-    /// Í¨¹ıÒ»¸öplaneÇĞ¸îÒ»¸ömesh£¬¼Ù¶¨planeÒÑ¾­ÔÚmeshµÄÄ£ĞÍ¿Õ¼äÏÂ¡£
-    /// ·µ»ØÕıÃæºÍ·´ÃæÁ½¸ömesh£¬ËûÃÇ±»¹æ»®ÔÚplaneµÄÁ½±ß£¬
+    /// é€šè¿‡ä¸€ä¸ªplaneåˆ‡å‰²ä¸€ä¸ªmeshï¼Œå‡å®šplaneå·²ç»åœ¨meshçš„æ¨¡å‹ç©ºé—´ä¸‹ã€‚
+    /// è¿”å›æ­£é¢å’Œåé¢ä¸¤ä¸ªmeshï¼Œä»–ä»¬è¢«è§„åˆ’åœ¨planeçš„ä¸¤è¾¹ï¼Œ
     /// </summary>
     public bool SliceMesh(Mesh mesh, ref Plane slice)
     {
         // Let's always fill the vertices array so that we can access it even if the mesh didn't intersect
-        //»ñÈ¡meshµÄËùÓĞ¶¥µã
+        //è·å–meshçš„æ‰€æœ‰é¡¶ç‚¹
         mesh.GetVertices(ogVertices);
 
         // 1. Verify if the bounds intersect first
-        //¼ì²émeshºÍÆ½ÃæÊÇ·ñÏà½»
+        //æ£€æŸ¥meshå’Œå¹³é¢æ˜¯å¦ç›¸äº¤
         if (!Intersections.BoundPlaneIntersect(mesh, ref slice))
             return false;
 
-        //»ñÈ¡Èı½ÇĞÎË÷Òı[0,1,2,2,3,0]
+        //è·å–ä¸‰è§’å½¢ç´¢å¼•[0,1,2,2,3,0]
         mesh.GetTriangles(ogTriangles, 0);
-        //»ñÈ¡Íø¸ñµÄ¶¥µã·¨Ïß
+        //è·å–ç½‘æ ¼çš„é¡¶ç‚¹æ³•çº¿
         mesh.GetNormals(ogNormals);
-        //»ñÈ¡uv¼¯ºÏ(0,0),(0,1),(1,0)
+        //è·å–uvé›†åˆ(0,0),(0,1),(1,0)
         mesh.GetUVs(0, ogUvs);
 
         PositiveMesh.Clear();
         NegativeMesh.Clear();
         addedPairs.Clear();
 
-        //ÔÚĞÂmeshÖĞ·ÖÀëÀÏ¶¥µã
+        //åœ¨æ–°meshä¸­åˆ†ç¦»è€é¡¶ç‚¹
         for(int i = 0; i < ogVertices.Count; ++i)
         {
-            //¼ì²éÔ´meshÃ¿¸ö¶¥µãµ½Æ½ÃæµÄ¾àÀë£¬>=0±íÊ¾¸Ã¶¥µãÔÚplaneµÄÕıÃæ£¬·ñÔòz·´Ãæ
-            //½«meshµÄ¶¥µã·Ö¸î³ÉÕıÃæºÍ·´ÃæÁ½²¿·Ö
+            //æ£€æŸ¥æºmeshæ¯ä¸ªé¡¶ç‚¹åˆ°å¹³é¢çš„è·ç¦»ï¼Œ>=0è¡¨ç¤ºè¯¥é¡¶ç‚¹åœ¨planeçš„æ­£é¢ï¼Œå¦åˆ™zåé¢
+            //å°†meshçš„é¡¶ç‚¹åˆ†å‰²æˆæ­£é¢å’Œåé¢ä¸¤éƒ¨åˆ†
             if (slice.GetDistanceToPoint(ogVertices[i]) >= 0)
                 PositiveMesh.AddVertex(ogVertices, ogNormals, ogUvs, i);
             else
                 NegativeMesh.AddVertex(ogVertices, ogNormals, ogUvs, i);
         }
 
-        //Èç¹ûÓĞÈÎÒâÒ»¸ö¼¯ºÏÊÇ¿ÕµÄ£¬Ôò´ú±íÃ»ÓĞÇĞ¸îÃæºÍmeshÃ»ÓĞÏà½»
+        //å¦‚æœæœ‰ä»»æ„ä¸€ä¸ªé›†åˆæ˜¯ç©ºçš„ï¼Œåˆ™ä»£è¡¨æ²¡æœ‰åˆ‡å‰²é¢å’Œmeshæ²¡æœ‰ç›¸äº¤
         if (NegativeMesh.vertices.Count == 0 || PositiveMesh.vertices.Count == 0)
             return false;
 
         // 3. Separate triangles and cut those that intersect the plane
-        //±éÀúÃ¿Ò»¸öÈı½ÇĞÎ£¬·ÖÀë²¢ÇÒÇĞ¸îÓëÇĞ¸îÃæÏà½»µÄÈı½ÇĞÎ
+        //éå†æ¯ä¸€ä¸ªä¸‰è§’å½¢ï¼Œåˆ†ç¦»å¹¶ä¸”åˆ‡å‰²ä¸åˆ‡å‰²é¢ç›¸äº¤çš„ä¸‰è§’å½¢
         for (int i = 0; i < ogTriangles.Count; i += 3)
         {
             if (intersect.TrianglePlaneIntersect(ogVertices, ogUvs, ogTriangles, i, ref slice, PositiveMesh, NegativeMesh, intersectPair))
