@@ -6,13 +6,13 @@ namespace Timeline
 {
     public class Controller : MonoBehaviour
     {
-        //Track Group ½«²»Í¬µÄ¹ìµÀ½øĞĞ·ÖÀà£¬Ïàµ±ÓÚÎÄ¼ş¼Ğ¹¦ÄÜ
-        //Activation Track ¿ØÖÆÎïÌåµÄÏÔÊ¾ºÍÒş²Ø
-        //Animation Track ÎªÎïÌå¼ÓÈë¶¯»­£¬¿ÉÒÔÔÚ³¡¾°ÖĞ·½±ãµØÂ¼ÖÆ¶¯»­£¬Ò²¿ÉÒÔÊÇÒÑ¾­ÖÆ×÷ºÃµÄAnimation Clip
-        //Audio Track Îª¶¯»­Ìí¼ÓÒôĞ§£¬²¢¿É¶ÔÒôĞ§½øĞĞ¼òµ¥µÄ²Ã¼ôºÍ²Ù×÷
-        //Control Track ÔÚ¸Ã¹ìµÀÉÏ¿ÉÒÔÌí¼ÓÁ£×ÓĞ§¹û£¬Í¬Ê±Ò²¿ÉÒÔÌí¼Ó×ÓTimeline½øĞĞÇ¶Ì×
-        //Signal Track ĞÅºÅ¹ìµÀ£¬¿ÉÒÔ·¢ËÍĞÅºÅ£¬´¥·¢ÏìÓ¦ĞÅºÅµÄº¯Êıµ÷ÓÃ
-        //Playable Track ÔÚ¸Ã¹ìµÀÖĞÓÃ»§¿ÉÒÔÌí¼Ó×Ô¶¨ÒåµÄ²¥·Å¹¦ÄÜ
+        //Track Group å°†ä¸åŒçš„è½¨é“è¿›è¡Œåˆ†ç±»ï¼Œç›¸å½“äºæ–‡ä»¶å¤¹åŠŸèƒ½
+        //Activation Track æ§åˆ¶ç‰©ä½“çš„æ˜¾ç¤ºå’Œéšè—
+        //Animation Track ä¸ºç‰©ä½“åŠ å…¥åŠ¨ç”»ï¼Œå¯ä»¥åœ¨åœºæ™¯ä¸­æ–¹ä¾¿åœ°å½•åˆ¶åŠ¨ç”»ï¼Œä¹Ÿå¯ä»¥æ˜¯å·²ç»åˆ¶ä½œå¥½çš„Animation Clip
+        //Audio Track ä¸ºåŠ¨ç”»æ·»åŠ éŸ³æ•ˆï¼Œå¹¶å¯å¯¹éŸ³æ•ˆè¿›è¡Œç®€å•çš„è£å‰ªå’Œæ“ä½œ
+        //Control Track åœ¨è¯¥è½¨é“ä¸Šå¯ä»¥æ·»åŠ ç²’å­æ•ˆæœï¼ŒåŒæ—¶ä¹Ÿå¯ä»¥æ·»åŠ å­Timelineè¿›è¡ŒåµŒå¥—
+        //Signal Track ä¿¡å·è½¨é“ï¼Œå¯ä»¥å‘é€ä¿¡å·ï¼Œè§¦å‘å“åº”ä¿¡å·çš„å‡½æ•°è°ƒç”¨
+        //Playable Track åœ¨è¯¥è½¨é“ä¸­ç”¨æˆ·å¯ä»¥æ·»åŠ è‡ªå®šä¹‰çš„æ’­æ”¾åŠŸèƒ½
 
         // Start is called before the first frame update
         void Start()
@@ -20,52 +20,52 @@ namespace Timeline
             if ( _director.playableAsset == null || _director.playableAsset is not TimelineAsset)
                 return;
 
-            //×Ô¼º´´½¨Ò»¸öclip
+            //è‡ªå·±åˆ›å»ºtimeline,track,clip
             var timeline = _director.playableAsset as TimelineAsset;
-            timeline.durationMode = TimelineAsset.DurationMode.FixedLength;
-            timeline.fixedDuration = 10f;
-            //¶¯Ì¬´´½¨Ò»¸ötimelineµÄtrack
-            var track = timeline.CreateTrack<PlayableTrack>( "CustomTrack" );
-            //ÔÚÎªÒ»¸ötrack´´½¨ClipÊ±£¬¿ÉÒÔÖ±½Óµ÷ÓÃCreateClipº¯Êı£¬ËüµÄ²ÎÊı½ÓÊÜScriptableObject£¬Ò²¾ÍÊÇPlayableAssetÀàĞÍ
-            //²¢ÇÒÔÚµ÷ÓÃÊ±£¬µ÷ÓÃ²ÎÊıµÄCreatePlayableº¯Êı²¢·µ»ØÒ»¸ö¶ÔÓ¦µÄclip±íÊ¾¸ÃÆ¬¶Î
-            //ÔÚµ÷ÓÃCreatePlayableÊ±£¬·µ»ØÒ»¸öPlayableBehaviour±íÊ¾clipµÄĞĞÎª´¦ÀíÂß¼­£¬
-            var clip = track.CreateClip<MoveObjPlayableAsset>();
-            clip.duration = 5f;
-            //clip.asset±íÊ¾¸ÃÆ¬¶Î³ÖÓĞµÄplayableÊı¾İÊµÀı
-            //ÉèÖÃ¸ÃÊµÀıµÄĞÅÏ¢Êı¾İ
-            var asset = clip.asset as MoveObjPlayableAsset;
-            asset.go = _director_cube;
-            asset._startPos = new Vector3( -19.0100002f, 7.48000813f, 13.75f );
-            asset._targetPos = new Vector3( 50f, 50f, 0 );
-            asset._duration = (float)clip.duration;
+            //timeline.durationMode = TimelineAsset.DurationMode.FixedLength;
+            //timeline.fixedDuration = 10f;
+            ////åŠ¨æ€åˆ›å»ºä¸€ä¸ªtimelineçš„track
+            //var track = timeline.CreateTrack<PlayableTrack>( "CustomTrack" );
+            ////åœ¨ä¸ºä¸€ä¸ªtrackåˆ›å»ºClipæ—¶ï¼Œå¯ä»¥ç›´æ¥è°ƒç”¨CreateClipå‡½æ•°ï¼Œå®ƒçš„å‚æ•°æ¥å—ScriptableObjectï¼Œä¹Ÿå°±æ˜¯PlayableAssetç±»å‹
+            ////å¹¶ä¸”åœ¨è°ƒç”¨æ—¶ï¼Œè°ƒç”¨å‚æ•°çš„CreatePlayableå‡½æ•°å¹¶è¿”å›ä¸€ä¸ªå¯¹åº”çš„clipè¡¨ç¤ºè¯¥ç‰‡æ®µ
+            ////åœ¨è°ƒç”¨CreatePlayableæ—¶ï¼Œè¿”å›ä¸€ä¸ªPlayableBehaviourè¡¨ç¤ºclipçš„è¡Œä¸ºå¤„ç†é€»è¾‘ï¼Œ
+            //var clip = track.CreateClip<MoveObjPlayableAsset>();
+            //clip.duration = 5f;
+            ////clip.assetè¡¨ç¤ºè¯¥ç‰‡æ®µæŒæœ‰çš„playableæ•°æ®å®ä¾‹
+            ////è®¾ç½®è¯¥å®ä¾‹çš„ä¿¡æ¯æ•°æ®
+            //var asset = clip.asset as MoveObjPlayableAsset;
+            //asset.go = _director_cube;
+            //asset._startPos = new Vector3( -19.0100002f, 7.48000813f, 13.75f );
+            //asset._targetPos = new Vector3( 50f, 50f, 0 );
+            //asset._duration = (float)clip.duration;
 
-            //Ê¹ÓÃÏÖÓĞµÄclip
-            //foreach ( var track in timeline.GetOutputTracks() )
-            //{
-            //    if ( !track.name.Equals( "CustomTrack" ) )
-            //        continue;
+            //ä½¿ç”¨ç°æœ‰çš„clip
+            foreach ( var track in timeline.GetOutputTracks() )
+            {
+                if ( !track.name.Equals( "CustomTrack" ) )
+                    continue;
 
-            //    foreach ( var clip in track.GetClips() )
-            //    {
-            //        if ( clip.asset is not MoveObjPlayableAsset )
-            //            continue;
+                foreach ( var clip in track.GetClips() )
+                {
+                    if ( clip.asset is not MoveObjPlayableAsset )
+                        continue;
 
-            //        var asset = clip.asset as MoveObjPlayableAsset;
-            //        asset.go = _director_cube;
-            //        asset._startPos = new Vector3( -19.0100002f, 7.48000813f, 13.75f );
-            //        asset._targetPos = new Vector3( 50f, 50f, 0 );
-            //        asset._duration = 5f;
-            //    }
-            //}
+                    var asset = clip.asset as MoveObjPlayableAsset;
+                    asset.go = _director_cube;
+                    asset._startPos = new Vector3( -19.0100002f, 7.48000813f, 13.75f );
+                    asset._targetPos = new Vector3( 50f, 50f, 0 );
+                    asset._duration = 5f;
+                }
+            }
 
             #region nouse
             //foreach ( var binding in timeline.outputs )
             //{
-            //    //ÕÒµ½ÏàÓ¦µÄ¹ìµÀ
+            //    //æ‰¾åˆ°ç›¸åº”çš„è½¨é“
             //    var trackName = binding.streamName;
             //    if ( trackName.Equals( "CustomTrack" ) )
             //    {
-            //        //ÕÒµ½¹ìµÀÉÏËùÓĞµÄÆ¬¶Î£¬²¢ÇÒ½«¶ÔÓ¦µÄÆ¬¶Î×ª³ÉÏëÒªµÄ
+            //        //æ‰¾åˆ°è½¨é“ä¸Šæ‰€æœ‰çš„ç‰‡æ®µï¼Œå¹¶ä¸”å°†å¯¹åº”çš„ç‰‡æ®µè½¬æˆæƒ³è¦çš„
             //        var track = binding.sourceObject as TrackAsset;
             //        var clips = track.GetClips();
             //        foreach ( var clip in clips )

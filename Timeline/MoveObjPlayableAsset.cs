@@ -6,16 +6,19 @@ using UnityEngine.Timeline;
 
 namespace Timeline
 {
-    //PlayableAsset表示所有Playable资源的数据来源（当然也包括timeline的）
+    //PlayableAsset琛ㄧず鎵�鏈塒layable璧勬簮鐨勬暟鎹潵婧愶紙褰撶劧涔熷寘鎷瑃imeline鐨勶級
     public class MoveObjPlayableAsset : PlayableAsset
     {
         public override UnityEngine.Playables.Playable CreatePlayable( PlayableGraph graph, GameObject owner )
         {
             var bhv = new MoveObjPlayableBehaviour();
-            bhv.go = GameObject.Find("Cube");
-            bhv._startPos = _startPos;
+            var go = GameObject.Find("Cube");
+
+            bhv.go = go;
+            bhv._startPos  = _startPos;
             bhv._targetPos = _targetPos;
-            bhv._duration = _duration;
+            bhv._duration  = _duration;
+            
             return ScriptPlayable<MoveObjPlayableBehaviour>.Create( graph, bhv );
         }
 

@@ -123,6 +123,7 @@ TextureImporter:
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -131,9 +132,9 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: -1
+    filterMode: 1
     aniso: 16
-    mipBias: -100
+    mipBias: 0
     wrapU: 1
     wrapV: 1
     wrapW: 1
@@ -154,6 +155,8 @@ TextureImporter:
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
@@ -857,6 +860,39 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      Aura38_30: 21300060
+      Aura38_14: 21300028
+      Aura38_25: 21300050
+      Aura38_21: 21300042
+      Aura38_4: 21300008
+      Aura38_7: 21300014
+      Aura38_12: 21300024
+      Aura38_10: 21300020
+      Aura38_3: 21300006
+      Aura38_5: 21300010
+      Aura38_2: 21300004
+      Aura38_6: 21300012
+      Aura38_27: 21300054
+      Aura38_24: 21300048
+      Aura38_26: 21300052
+      Aura38_22: 21300044
+      Aura38_9: 21300018
+      Aura38_17: 21300034
+      Aura38_15: 21300030
+      Aura38_0: 21300000
+      Aura38_29: 21300058
+      Aura38_28: 21300056
+      Aura38_13: 21300026
+      Aura38_1: 21300002
+      Aura38_19: 21300038
+      Aura38_23: 21300046
+      Aura38_11: 21300022
+      Aura38_20: 21300040
+      Aura38_31: 21300062
+      Aura38_8: 21300016
+      Aura38_16: 21300032
+      Aura38_18: 21300036
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
